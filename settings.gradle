@@ -1,0 +1,4 @@
+rootProject.name = "AppSomeCase"
+include ':app'
+include ':Jetpack'
+include ':CoreLibrary'
