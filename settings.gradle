@@ -1,4 +1,4 @@
 rootProject.name = "AppSomeCase"
 include ':app'
+include ':Core'
 include ':Jetpack'
-include ':CoreLibrary'

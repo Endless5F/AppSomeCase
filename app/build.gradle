@@ -33,6 +33,6 @@ android {
 }
 
 dependencies {
+    implementation project(path: ':Core')
     implementation project(path: ':Jetpack')
-    implementation project(path: ':CoreLibrary')
 }
