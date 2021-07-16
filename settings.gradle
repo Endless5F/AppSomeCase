@@ -1,4 +1,4 @@
-rootProject.name = "AppSomeCase"
+rootProject.name = "AppBox"
 include ':app'
 include ':Core'
 include ':Jetpack'

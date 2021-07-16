@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.viewpager.widget.ViewPager
+import java.lang.StringBuilder
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -35,11 +36,10 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun Greeting(name: String) {
-        Column() {
+        Column(Modifier) {
             Text(text = "Hello $name!", Modifier.padding(2.dp))
             Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = "图标")
         }
-
     }
 
     @Preview
@@ -58,9 +58,10 @@ class MainActivity : AppCompatActivity() {
         rl.addView(ViewPager(this))
         root.addView(rl)
         // 打印view层级
-        Handler(Looper.getMainLooper()).post {
+        Handler(Looper.getMainLooper()).postDelayed( {
+//            depthFirst(root)
             depthFirst(window.decorView)
-        }
+        }, 2000)
     }
 
     /**
@@ -105,11 +106,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun printView(root: ViewIndex) {
-        var tree = ""
+        val divider = StringBuilder()
         for (i in 0..root.index) {
-            tree += "-"
+            divider.append("-")
         }
-        Log.e("jcy", "printView: $tree ${root.view.javaClass.name}")
+        Log.e("jcy", "printView: $divider ${root.view.javaClass.name}")
     }
 
 
