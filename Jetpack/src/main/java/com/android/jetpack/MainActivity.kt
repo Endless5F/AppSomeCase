@@ -6,62 +6,44 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ActionBarOverlayLayout
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.viewpager.widget.ViewPager
-import java.lang.StringBuilder
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.android.jetpack.ui.Home
+import com.android.jetpack.ui.theme.WeTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    @OptIn(ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            Greeting("World")
+            val viewModel: WeViewModel = viewModel()
+            WeTheme(viewModel.theme) {
+                Home()
+            }
         }
     }
 
-    @Composable
-    fun Greeting(name: String) {
-        Column(Modifier) {
-            Text(text = "Hello $name!", Modifier.padding(2.dp))
-            Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = "图标")
+    override fun onBackPressed() {
+        val viewModel: WeViewModel by viewModels()
+        if (viewModel.chatting) {
+            viewModel.endChat()
+        } else {
+            super.onBackPressed()
         }
-    }
-
-    @Preview
-    @Composable
-    fun PreviewGreeting() {
-        Greeting("Android")
     }
 
     override fun onResume() {
         super.onResume()
-        val root = LinearLayout(this)
-        root.addView(TextView(this))
-        root.addView(TextView(this))
-        val rl = RelativeLayout(this)
-        rl.addView(ImageView(this))
-        rl.addView(ViewPager(this))
-        root.addView(rl)
         // 打印view层级
-        Handler(Looper.getMainLooper()).postDelayed( {
-//            depthFirst(root)
+        Handler(Looper.getMainLooper()).post {
             depthFirst(window.decorView)
-        }, 2000)
+        }
     }
 
     /**
