@@ -10,4 +10,9 @@ java {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    // 核心库：必要！公共API，使得协程在各个平台的接口得到统一
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+    // 平台库：当前平台对应的平台库，协程在具体平台的表现方式是有差异的(如Android)
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1'
 }
