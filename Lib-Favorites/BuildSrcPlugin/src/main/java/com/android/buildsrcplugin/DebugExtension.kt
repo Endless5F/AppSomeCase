@@ -1,4 +1,4 @@
-package com.debug.plugin
+package com.android.buildsrcplugin
 
 const val DEBUG_CONFIG = "debugConfig"
 

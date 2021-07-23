@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -29,8 +29,8 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion "1.5.10"
         kotlinCompilerExtensionVersion "1.0.0-beta09"
+        kotlinCompilerVersion kotlin_version
     }
 
     compileOptions {
@@ -41,14 +41,16 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 dependencies {
 
     implementation project(path: ':Core')
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // Room
     def room_version = "2.3.0"
@@ -62,8 +64,6 @@ dependencies {
     def lifecycle_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
     //------------------------- Compose Start-------------------------------------------
     // 各种库版本：https://developer.android.com/jetpack/androidx/releases/activity?hl=zh-cn

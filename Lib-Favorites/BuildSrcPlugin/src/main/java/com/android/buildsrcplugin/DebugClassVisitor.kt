@@ -1,4 +1,4 @@
-package com.debug.plugin
+package com.android.buildsrcplugin
 
 import org.objectweb.asm.*
 import org.objectweb.asm.commons.AdviceAdapter

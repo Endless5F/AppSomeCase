@@ -2,8 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
-      <module name="AppBox.Jetpack" target="11" />
-      <module name="AppBox.Lib-Favorites.Architecture" target="11" />
       <module name="AppBox.Lib-Favorites.HttpServer" target="11" />
       <module name="AppBox.Lib-Favorites.PerformanceAnalysis" target="11" />
     </bytecodeTargetLevel>

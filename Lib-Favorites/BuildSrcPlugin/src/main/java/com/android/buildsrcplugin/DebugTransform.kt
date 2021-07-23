@@ -1,4 +1,4 @@
-package com.debug.plugin
+package com.android.buildsrcplugin
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager

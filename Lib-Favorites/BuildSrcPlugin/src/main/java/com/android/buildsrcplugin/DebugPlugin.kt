@@ -1,4 +1,4 @@
-package com.debug.plugin
+package com.android.buildsrcplugin
 
 import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin

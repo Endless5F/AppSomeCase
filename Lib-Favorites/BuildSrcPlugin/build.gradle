@@ -1,0 +1,26 @@
+plugins {
+    id 'kotlin'
+    id 'maven'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    implementation "org.ow2.asm:asm:9.1"
+    implementation "org.ow2.asm:asm-commons:9.1"
+    implementation "com.android.tools.build:gradle:4.2.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: uri('../../repo')) // 仓库的路径，此处是项目根目录下的 repo 的文件夹
+        pom.groupId = 'com.debug.plugin'  // groupId ，自行定义，一般是包名
+        pom.artifactId = 'plugin' // artifactId ，自行定义
+        pom.version = '1.0.0' // version 版本号
+    }
+}
