@@ -1,0 +1,79 @@
+apply plugin: 'com.android.application'
+// TODO 最新版本gradle不支持aspectjx
+// apply plugin: 'android-aspectjx'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+repositories {
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        multiDexEnabled true
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    /**
+     * 添加 java8 支持
+     */
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+dependencies {
+    implementation project(path: ':Core')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // leakcanary内存泄漏
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+
+    // AOP
+    implementation 'org.aspectj:aspectjrt:1.9.5'
+
+    // ARTHook：Epic
+    implementation 'me.weishu:epic:0.11.0'
+
+    // AndroidPerformanceMonitor 内存卡顿
+    implementation 'com.github.markzhai:blockcanary-android:1.5.0'
+
+    // ANR-WatchDog
+    implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
+
+    // 轻量级Android AOP框架
+    compileOnly 'me.ele:lancet-base:1.0.5'
+
+    // 网络优化
+    implementation 'com.facebook.stetho:stetho:1.5.1'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.1'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.0'
+
+    implementation 'com.alibaba:fastjson:1.2.50'
+    implementation('com.aliyun.ams:alicloud-android-httpdns:2.0.2') {
+        transitive true
+    }
+
+    implementation 'com.jakewharton:disklrucache:2.0.2'
+}

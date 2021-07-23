@@ -1,0 +1,105 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        multiDexEnabled true
+        applicationId "com.android.architecture"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    /**
+     * 添加 java8 支持
+     * */
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    /**
+     * 添加 kotlin 用jdk1.8编译支持
+     * */
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    /**
+     * 开启dataBind
+     * */
+    dataBinding {
+        enabled true
+    }
+
+}
+
+dependencies {
+    implementation project(path: ':Core')
+
+    // arch 配置
+
+    // ViewModel and LiveData
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    // alternatively - just ViewModel
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.3.1' // use -ktx for Kotlin
+    // alternatively - just LiveData
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.2.0'
+    // alternatively - Lifecycles only (no ViewModel or LiveData).
+    //     Support library depends on this lightweight import
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.3.1'
+    kapt 'androidx.lifecycle:lifecycle-compiler:2.2.0' // use kapt for Kotlin
+    // alternately - if using Java8, use the following instead of compiler
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.0'
+    // optional - ReactiveStreams support for LiveData
+    implementation 'androidx.lifecycle:lifecycle-reactivestreams:2.2.0'
+    // optional - Test helpers for LiveData
+    testImplementation 'androidx.arch.core:core-testing:2.1.0'
+
+    implementation 'androidx.navigation:navigation-fragment:2.3.0'
+    implementation 'androidx.navigation:navigation-ui:2.3.0'
+
+    // room
+    implementation 'androidx.room:room-runtime:2.3.0'
+//    implementation "android.arch.persistence.room:rxjava2:$roomVersion"
+    kapt 'androidx.room:room-compiler:2.3.0'
+
+    //Paging的依赖
+    implementation 'androidx.paging:paging-runtime:2.1.2'
+    //Paging对RxJava2的原生支持
+    implementation 'androidx.paging:paging-rxjava2:2.1.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+
+    implementation 'androidx.work:work-runtime-ktx:2.5.0-alpha01'
+    implementation "com.google.code.gson:gson:2.8.6"
+
+    // SweetDialog
+    implementation "com.github.f0ris.sweetalert:library:1.5.1"
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+}
+
+repositories {
+    mavenCentral()
+}

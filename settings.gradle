@@ -2,3 +2,7 @@ rootProject.name = "AppBox"
 include ':app'
 include ':Core'
 include ':Jetpack'
+include ':Lib-Favorites:Architecture'
+include ':Lib-Favorites:BasicKnowledge'
+include ':Lib-Favorites:HttpServer'
+include ':Lib-Favorites:PerformanceAnalysis'

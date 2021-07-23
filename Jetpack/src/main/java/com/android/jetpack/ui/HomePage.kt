@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.android.core.ext.startCoroutine
 import com.android.jetpack.WeViewModel
 import com.android.jetpack.ext.percentOffsetX
 import com.android.jetpack.ui.theme.WeTheme
@@ -72,6 +73,9 @@ fun Home() {
                 }
             }
             BottomBar(pagerState.currentPage) {
+                startCoroutine {
+                    pagerState.animateScrollToPage(it)
+                }
 //                withContext(this) {
 //                    pagerState.animateScrollToPage(it)
 //                }
