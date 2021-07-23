@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.8">
-      <module name="AppBox.app" target="11" />
-      <module name="AppBox.Core" target="11" />
+    <bytecodeTargetLevel target="11">
       <module name="AppBox.Jetpack" target="11" />
       <module name="AppBox.Lib-Favorites.Architecture" target="11" />
       <module name="AppBox.Lib-Favorites.HttpServer" target="11" />
