@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 30
+
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation project(path: ':Core')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+
+    implementation 'com.hyman:flowlayout-lib:1.1.2'
+
+    implementation 'com.yanzhikai:BooheeRuler:0.0.7'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    implementation 'com.scwang.smart:refresh-layout-kernel:2.0.1'      //核心必须依赖
+    implementation 'com.scwang.smart:refresh-header-classics:2.0.1'    //经典刷新头
+    implementation 'com.scwang.smart:refresh-footer-classics:2.0.1'    //经典加载
+}
+
+repositories {
+    mavenCentral()
+}
