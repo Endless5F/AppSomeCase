@@ -60,6 +60,7 @@ private fun ChatListItem(chat: Chat) {
                 viewModel.startChat(chat = chat)
             }
     ) {
+
         Image(
             painter = painterResource(id = chat.friend.avatar),
             contentDescription = chat.friend.name,

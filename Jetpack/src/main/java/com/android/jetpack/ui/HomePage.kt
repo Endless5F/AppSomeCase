@@ -2,16 +2,13 @@ package com.android.jetpack.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.core.ext.startCoroutine
 import com.android.jetpack.WeViewModel
@@ -22,8 +19,7 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 @Composable
 @OptIn(ExperimentalPagerApi::class)
@@ -34,7 +30,6 @@ fun Home() {
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-
         Column(Modifier.fillMaxSize()) {
             val pagerState = rememberPagerState(
                 pageCount = 4, // 总页数
@@ -72,13 +67,16 @@ fun Home() {
                     }
                 }
             }
+
+            val composableScope = rememberCoroutineScope()
+
             BottomBar(pagerState.currentPage) {
                 startCoroutine {
                     pagerState.animateScrollToPage(it)
                 }
-//                withContext(this) {
-//                    pagerState.animateScrollToPage(it)
-//                }
+                composableScope.launch {
+                    pagerState.animateScrollToPage(it)
+                }
             }
         }
 

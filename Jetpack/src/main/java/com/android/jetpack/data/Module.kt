@@ -1,4 +1,4 @@
-package com.rengwuxian.wecompose.data
+package com.android.jetpack.data
 
 enum class Module {
   Chat, Contacts, Discovery, Me

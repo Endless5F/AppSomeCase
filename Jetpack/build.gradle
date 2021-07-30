@@ -29,7 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion "1.0.0-beta09"
+        kotlinCompilerExtensionVersion "1.0.0-rc02"
         kotlinCompilerVersion kotlin_version
     }
 
@@ -58,10 +58,10 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
     // Datastore
-    implementation "androidx.datastore:datastore:1.0.0-beta02"
+    implementation "androidx.datastore:datastore:1.0.0-rc01"
 
     // Lifecycle+LiveData+ViewModel
-    def lifecycle_version = "2.2.0"
+    def lifecycle_version = "2.3.1"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
@@ -69,7 +69,7 @@ dependencies {
     // 各种库版本：https://developer.android.com/jetpack/androidx/releases/activity?hl=zh-cn
 
 
-    def compose_version = "1.0.0-beta09"
+    def compose_version = "1.0.0-rc02"
     // 1. ui
     implementation "androidx.compose.ui:ui:$compose_version"
     // Tooling support (Previews, etc.)
@@ -94,7 +94,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
 
     // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.3.0-beta02'
+    implementation 'androidx.activity:activity-compose:1.3.0-rc02'
     // Integration with ViewModels
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
 
@@ -106,9 +106,9 @@ dependencies {
      * 查看补充功能：https://github.com/google/accompanist
      * Accompanist 是一组库，旨在为 Jetpack Compose 补充开发人员通常需要但尚不可用的功能，例如ViewPager、Flow等。
      */
-    implementation 'com.google.accompanist:accompanist-insets:0.12.0'
-    implementation "com.google.accompanist:accompanist-pager:0.12.0"
+    implementation 'com.google.accompanist:accompanist-insets:0.14.0'
+    implementation "com.google.accompanist:accompanist-pager:0.14.0"
 
-    implementation 'androidx.activity:activity-ktx:1.2.0'
+    implementation 'androidx.activity:activity-ktx:1.2.3'
     //------------------------- Compose End---------------------------------------------
 }
