@@ -15,9 +15,9 @@ class ViewModelActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_model)
         // 无参构造
-        val viewModel = ViewModelProviders.of(this).get(NumberViewModel::class.java)
+        val viewModel = ViewModelProvider(this).get(NumberViewModel::class.java)
         // 有参构造
-        val viewModel2 = ViewModelProviders.of(this, NumberViewModelFactory(5)).get(NumberViewModel::class.java)
+        val viewModel2 = ViewModelProvider(this, NumberViewModelFactory(5)).get(NumberViewModel::class.java)
         textView2.text = "" + viewModel.number
         button.setOnClickListener {
             viewModel.number++
