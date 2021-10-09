@@ -71,9 +71,9 @@ fun Home() {
             val composableScope = rememberCoroutineScope()
 
             BottomBar(pagerState.currentPage) {
-                startCoroutine {
-                    pagerState.animateScrollToPage(it)
-                }
+//                startCoroutine {
+//                    pagerState.animateScrollToPage(it)
+//                }
                 composableScope.launch {
                     pagerState.animateScrollToPage(it)
                 }
