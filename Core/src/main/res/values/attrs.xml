@@ -53,4 +53,59 @@
         <attr name="rightMargin" format="dimension"/>
         <attr name="enable" format="boolean"/>
     </declare-styleable>
+
+
+    <declare-styleable name="HiSearchView">
+        <!-- 搜索框背景 -->
+        <attr name="search_background" format="reference"/>
+        <!-- 小图标 和 大小 -->
+        <attr name="search_icon" format="reference"/>
+        <attr name="search_icon_size" format="dimension"/>
+        <!-- 搜索栏上 icon 与 文字之间的间距 -->
+        <attr name="icon_padding" format="dimension"/>
+        <!-- 清除小图标 和 大小 -->
+        <attr name="clear_icon" format="reference"/>
+        <attr name="clear_icon_size" format="dimension"/>
+        <!-- 提示语 和 大小、颜色 -->
+        <attr name="hint_text" format="string"/>
+        <attr name="hint_text_size" format="dimension"/>
+        <attr name="hint_text_color" format="color"/>
+        <!-- 提示语位置 -->
+        <attr name="hint_gravity" format="enum">
+            <enum name="hint_center" value="0"/>
+            <enum name="hint_left" value="1"/>
+        </attr>
+        <!-- 输入搜索词大小、颜色 -->
+        <attr name="search_text_size" format="dimension"/>
+        <attr name="search_text_color" format="color"/>
+        <!-- 关键字大小，颜色、背景、清除icon、最大显示字符数、icon与字符的间距 -->
+        <attr name="key_word_size" format="dimension"/>
+        <attr name="key_word_color" format="color"/>
+        <attr name="key_word_background" format="reference"/>
+        <attr name="key_word_max_length" format="integer"/>
+        <attr name="key_word_icon" format="reference"/>
+        <attr name="key_word_padding" format="dimension"/>
+    </declare-styleable>
+
+    <!-- 可在应用的apptheme中全局配置 -->
+    <attr name="hiSearchViewStyle" format="reference"/>
+
+    <style name="hiSearchViewStyle">
+        <item name="search_background">@drawable/shape_search_view</item>
+        <item name="icon_padding">10dp</item>
+        <item name="search_icon">@drawable/ic_launcher_round</item>
+        <item name="search_icon_size">16dp</item>
+        <item name="clear_icon">@drawable/ic_launcher_round</item>
+        <item name="clear_icon_size">16dp</item>
+        <item name="hint_text_size">16dp</item>
+        <item name="hint_text_color">#888888</item>
+        <item name="hint_gravity">hint_left</item>
+        <item name="search_text_size">16dp</item>
+        <item name="search_text_color">#000000</item>
+        <item name="key_word_icon">@drawable/ic_launcher_round</item>
+        <item name="key_word_color">#ffffff</item>
+        <item name="key_word_background">#ffffff</item>
+        <item name="key_word_max_length">10</item>
+        <item name="key_word_padding">4dp</item>
+    </style>
 </resources>
