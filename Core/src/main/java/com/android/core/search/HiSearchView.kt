@@ -3,12 +3,16 @@ package com.android.core.search
 import android.content.Context
 import android.graphics.Color
 import android.text.Editable
+import android.text.InputFilter
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.*
 import com.android.core.R
+import com.android.core.util.dip
 
 /**
  *
@@ -16,7 +20,7 @@ import com.android.core.R
  * @version
  * @since 2021/10/15
  */
-class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int) :
+class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     RelativeLayout(context, attrs, defStyleAttr) {
 
     companion object {
@@ -30,6 +34,10 @@ class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, de
     private var searchIcon: ImageView? = null
     private var hintTv: TextView? = null
     private var searchIconHintContainer: LinearLayout? = null
+
+    private var keywordTv: TextView? = null
+    private var keywordClearIcon: ImageView? = null
+    private var keywordContainer: LinearLayout? = null
 
     // 右侧清除小图标
     private var clearIcon: ImageView? = null
@@ -58,6 +66,7 @@ class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, de
                 searchIconHintContainer?.visibility = if (hasContent) GONE else VISIBLE
             }
         })
+
     }
 
     private fun initEditText() {
@@ -90,8 +99,100 @@ class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, de
                     }
                 visibility = GONE
             }
+            addView(clearIcon)
         }
-        addView(clearIcon)
+    }
+
+    fun setKeyword(keyword: String?, listener: OnClickListener) {
+        ensureKeywordContainer()
+        toggleSearchViewVisibility(true)
+
+        editText?.text = null
+        keywordTv?.text = keyword
+        keywordClearIcon?.setOnClickListener {
+            toggleSearchViewVisibility(false)
+            listener.onClick(it)
+        }
+    }
+
+    fun setCLearIconClickListener(listener: OnClickListener) {
+        clearIcon?.setOnClickListener {
+            editText?.text = null
+            clearIcon?.visibility = GONE
+            searchIcon?.visibility = VISIBLE
+            hintTv?.visibility = VISIBLE
+            searchIconHintContainer?.visibility = VISIBLE
+        }
+    }
+
+    fun setHintText(hintText: String) {
+        hintTv?.text = hintText
+    }
+
+    private fun ensureKeywordContainer() {
+        if (keywordContainer != null) return
+        if (viewAttrs.keywordClearIcon != null) {
+            keywordClearIcon = ImageView(context).apply {
+                setImageDrawable(viewAttrs.keywordClearIcon)
+                val padding = viewAttrs.iconPadding
+                setPadding(padding, padding / 2, padding, padding / 2)
+                id = R.id.id_search_keyword_clear_icon
+
+                layoutParams =
+                    LayoutParams(viewAttrs.keywordClearIconSize, viewAttrs.keywordClearIconSize)
+            }
+        }
+
+        keywordTv = TextView(context).apply {
+            isSingleLine = true
+            includeFontPadding = false
+            ellipsize = TextUtils.TruncateAt.END
+            setTextColor(viewAttrs.keywordColor)
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, viewAttrs.keywordSize)
+            id = R.id.id_search_keyword_text_view
+            val padding = viewAttrs.iconPadding
+            setPadding(padding, padding / 2, 0, padding / 2)
+            filters = arrayOf(InputFilter.LengthFilter(viewAttrs.keywordMaxLen))
+        }
+
+        keywordContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            background = viewAttrs.keywordBackground
+
+            addView(
+                keywordTv,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            )
+            if (keywordClearIcon != null) {
+                addView(keywordClearIcon)
+            }
+
+            layoutParams =
+                LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    addRule(CENTER_VERTICAL)
+                    addRule(ALIGN_PARENT_LEFT)
+                    leftMargin = viewAttrs.iconPadding
+                    rightMargin = viewAttrs.iconPadding
+                }
+        }
+        addView(keywordContainer)
+    }
+
+    private fun toggleSearchViewVisibility(showKeyword: Boolean) {
+        clearIcon?.visibility = GONE
+        editText?.visibility = if (showKeyword) GONE else VISIBLE
+        searchIconHintContainer?.visibility = if (showKeyword) GONE else VISIBLE
+        searchIcon?.visibility = if (showKeyword) GONE else VISIBLE
+        hintTv?.visibility = if (showKeyword) GONE else VISIBLE
+
+        keywordContainer?.visibility = if (showKeyword) VISIBLE else GONE
     }
 
     private fun initSearchIconHintContainer() {
@@ -108,24 +209,48 @@ class HiSearchView constructor(context: Context, attrs: AttributeSet? = null, de
             val padding = viewAttrs.iconPadding
             setPadding(0, 0, padding / 2, 0)
             id = R.id.id_search_icon
+
+            layoutParams = LayoutParams(viewAttrs.searchIconSize, viewAttrs.searchIconSize)
         }
 
         searchIconHintContainer = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
 
-            addView(hintTv)
+            addView(
+                hintTv,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            )
             addView(searchIcon)
+
             layoutParams =
-                LayoutParams(viewAttrs.clearIconSize, viewAttrs.clearIconSize).apply {
+                LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
                     addRule(CENTER_VERTICAL)
 
-                    when(viewAttrs.hintGravity) {
+                    when (viewAttrs.hintGravity) {
                         CENTER -> addRule(CENTER_IN_PARENT)
                         else -> addRule(ALIGN_PARENT_LEFT)
                     }
                 }
         }
         addView(searchIconHintContainer)
+    }
+
+    fun demo() {
+        val searchView = HiSearchView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(-1, context.dip(40))
+            setHintText("搜索你想要的视频？")
+            postDelayed({
+                this@HiSearchView.setKeyword("android") {
+
+                }
+            }, 2000)
+        }
     }
 }

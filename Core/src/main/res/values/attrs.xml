@@ -83,7 +83,8 @@
         <attr name="key_word_color" format="color"/>
         <attr name="key_word_background" format="reference"/>
         <attr name="key_word_max_length" format="integer"/>
-        <attr name="key_word_icon" format="reference"/>
+        <attr name="key_word_clear_icon" format="reference"/>
+        <attr name="key_word_clear_icon_size" format="dimension"/>
         <attr name="key_word_padding" format="dimension"/>
     </declare-styleable>
 
@@ -102,7 +103,7 @@
         <item name="hint_gravity">hint_left</item>
         <item name="search_text_size">16dp</item>
         <item name="search_text_color">#000000</item>
-        <item name="key_word_icon">@drawable/ic_launcher_round</item>
+        <item name="key_word_clear_icon">@drawable/ic_launcher_round</item>
         <item name="key_word_color">#ffffff</item>
         <item name="key_word_background">#ffffff</item>
         <item name="key_word_max_length">10</item>

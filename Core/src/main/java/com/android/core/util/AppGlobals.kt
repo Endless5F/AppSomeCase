@@ -1,6 +1,5 @@
 package com.android.core.util
 
-import android.annotation.SuppressLint
 import android.app.Application
 import java.lang.Exception
 
@@ -15,7 +14,7 @@ import java.lang.Exception
  */
 object AppGlobals {
     private var application: Application? = null
-    @SuppressLint("PrivateApi")
+
     fun get(): Application? {
         if (application == null) {
             try {

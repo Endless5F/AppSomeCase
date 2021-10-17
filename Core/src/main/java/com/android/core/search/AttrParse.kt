@@ -60,6 +60,8 @@ object AttrParse {
             ContextCompat.getColor(context, R.color.color_000)
         )
 
+        val keywordClearIconSize =
+            array.getDimensionPixelSize(R.styleable.HiSearchView_key_word_clear_icon_size, context.dip(16))
         val keywordSize =
             array.getDimensionPixelSize(R.styleable.HiSearchView_key_word_size, context.dip(16))
         val keywordColor = array.getColor(
@@ -68,7 +70,7 @@ object AttrParse {
         )
         val keywordMaxLen = array.getInteger(R.styleable.HiSearchView_key_word_max_length, 10)
         val keywordBackground = array.getDrawable(R.styleable.HiSearchView_key_word_background)
-        val keywordIcon = array.getDrawable(R.styleable.HiSearchView_key_word_icon)
+        val keywordClearIcon = array.getDrawable(R.styleable.HiSearchView_key_word_clear_icon)
         val keywordPadding =
             array.getInteger(R.styleable.HiSearchView_key_word_padding, context.dip(4))
 
@@ -91,7 +93,8 @@ object AttrParse {
             keywordColor,
             keywordMaxLen,
             keywordBackground,
-            keywordIcon,
+            keywordClearIcon,
+            keywordClearIconSize,
             keywordPadding
         )
     }
@@ -113,7 +116,8 @@ object AttrParse {
         val keywordColor: Int,
         val keywordMaxLen: Int,
         val keywordBackground: Drawable?,
-        val keywordIcon: Drawable?,
+        val keywordClearIcon: Drawable?,
+        val keywordClearIconSize: Int,
         val keywordPadding: Int
     )
 }
