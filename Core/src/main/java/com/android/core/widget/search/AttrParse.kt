@@ -1,4 +1,4 @@
-package com.android.core.search
+package com.android.core.widget.search
 
 import android.annotation.SuppressLint
 import android.content.Context

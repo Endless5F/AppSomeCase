@@ -109,4 +109,25 @@
         <item name="key_word_max_length">10</item>
         <item name="key_word_padding">4dp</item>
     </style>
+
+    <declare-styleable name="HiNavigationBar">
+        <attr name="text_btn_size" format="dimension"/>
+
+        <!-- 按钮的横向内边距 -->
+        <attr name="hor_padding" format="dimension"/>
+        <!-- 返回按钮 和 中间标题文本 -->
+        <attr name="nav_back_icon" format="reference"/>
+        <attr name="nav_title" format="string"/>
+        <attr name="title_text_size" format="dimension"/>
+        <attr name="title_text_color" format="color"/>
+    </declare-styleable>
+
+    <style name="navigationStyle">
+        <item name="hor_padding">8dp</item>
+        <item name="nav_back_icon">@drawable/ic_launcher_round</item>
+        <item name="text_btn_size">16dp</item>
+        <item name="title_text_size">18dp</item>
+        <item name="title_text_color">#000000</item>
+
+    </style>
 </resources>

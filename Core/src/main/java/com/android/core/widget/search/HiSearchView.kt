@@ -1,4 +1,4 @@
-package com.android.core.search
+package com.android.core.widget.search
 
 import android.content.Context
 import android.graphics.Color
