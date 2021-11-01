@@ -1,13 +1,14 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-android-extensions'
 }
-apply plugin: 'debug-plugin'
-
-debugConfig {
-    enable = true
-    enableIncremental = false
-}
+//apply plugin: 'debug-plugin'
+//
+//debugConfig {
+//    enable = true
+//    enableIncremental = false
+//}
 
 android {
     compileSdkVersion 30

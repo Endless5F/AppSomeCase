@@ -105,7 +105,7 @@
         <item name="search_text_color">#000000</item>
         <item name="key_word_clear_icon">@drawable/ic_launcher_round</item>
         <item name="key_word_color">#ffffff</item>
-        <item name="key_word_background">#ffffff</item>
+        <item name="key_word_background">@drawable/shape_search_view</item>
         <item name="key_word_max_length">10</item>
         <item name="key_word_padding">4dp</item>
     </style>
