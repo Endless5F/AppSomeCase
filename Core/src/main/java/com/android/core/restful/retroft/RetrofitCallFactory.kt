@@ -19,7 +19,7 @@ import java.lang.IllegalStateException
  * @version
  * @since 2021/11/15
  */
-class RetrofitCallFactory(val baseUrl: String) : HiCall.Factory {
+class RetrofitCallFactory(baseUrl: String) : HiCall.Factory {
 
     private val covert: HiConvert
     private val apiService: ApiService
