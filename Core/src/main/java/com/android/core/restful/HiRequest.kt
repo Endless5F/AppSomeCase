@@ -1,9 +1,17 @@
 package com.android.core.restful
 
+import android.text.TextUtils
 import androidx.annotation.IntDef
+import com.android.core.restful.annotation.CacheStrategy
+import java.lang.Exception
+import java.lang.StringBuilder
 import java.lang.reflect.Type
+import java.net.URLEncoder
 
 open class HiRequest {
+    private var cacheStrategyKey: String = ""
+    var cacheStrategy: Int = CacheStrategy.NET_ONLY
+
     @METHOD
     var httpMethod: Int = 0
     var headers: MutableMap<String, String>? = null
@@ -18,6 +26,8 @@ open class HiRequest {
         companion object {
             const val GET = 0
             const val POST = 1
+            const val PUT=2
+            const val DELETE=3
         }
     }
 
@@ -49,6 +59,37 @@ open class HiRequest {
             headers = mutableMapOf()
         }
         headers!![name] = value
+    }
+
+    fun getCacheKey(): String {
+        if (!TextUtils.isEmpty(cacheStrategyKey)) {
+            return cacheStrategyKey
+        }
+        val builder = StringBuilder()
+        val endUrl = endPointUrl()
+        builder.append(endUrl)
+        if (endUrl.indexOf("?") > 0 || endUrl.indexOf("&") > 0) {
+            builder.append("&")
+        } else {
+            builder.append("?")
+        }
+
+        if (parameters != null) {
+            for ((key, value) in parameters!!) {
+                try {
+                    val encodeValue = URLEncoder.encode(value, "UTF-8")
+                    builder.append(key).append("=").append(encodeValue).append("&")
+                } catch (e: Exception) {
+                    //ignore
+                }
+            }
+            builder.deleteCharAt(builder.length - 1)
+            cacheStrategyKey = builder.toString()
+        } else {
+            cacheStrategyKey = endUrl
+        }
+
+        return cacheStrategyKey
     }
 
 }

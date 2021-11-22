@@ -9,13 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.android.core.common.ui.view.HiRecyclerView
+        <com.android.core.widget.recycleview.HiRecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.android.core.widget.refresh.HiRefreshLayout>
 
-    <com.android.core.common.ui.view.EmptyView
+    <com.android.core.widget.EmptyView
         android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

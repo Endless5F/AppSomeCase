@@ -1,5 +1,11 @@
 package com.android.core.restful
 
+import com.android.core.cache.HiCache
+import com.android.core.executor.HiExecutor
+import com.android.core.log.HiLog
+import com.android.core.restful.annotation.CacheStrategy
+import com.android.core.util.MainHandler
+
 /**
  * 代理CallFactory创建出来的call对象，从而实现拦截器的派发动作
  */
@@ -19,8 +25,15 @@ class Scheduler(
     ) : HiCall<T> {
         override fun execute(): HiResponse<T> {
             dispatchInterceptor(request, null)
+            if (request.cacheStrategy == CacheStrategy.CACHE_FIRST) {
+                val cacheResponse = readCache<T>()
+                if (cacheResponse.data != null) {
+                    return cacheResponse
+                }
+            }
 
             val response = delegate.execute()
+            saveCacheIfNeed(response)
 
             dispatchInterceptor(request, response)
 
@@ -29,12 +42,29 @@ class Scheduler(
 
         override fun enqueue(callback: HiCallback<T>) {
             dispatchInterceptor(request, null)
+            if (request.cacheStrategy == CacheStrategy.CACHE_FIRST) {
+                HiExecutor.execute(runnable = {
+                    val cacheResponse = readCache<T>()
+                    if (cacheResponse.data != null) {
+                        //抛到主线程里面
+                        MainHandler.sendAtFrontOfQueue(runnable = {
+                            callback.onSuccess(cacheResponse)
+                        })
+
+                        HiLog.d("enqueue ,cache : " + request.getCacheKey())
+                    }
+                })
+            }
 
             delegate.enqueue(object : HiCallback<T> {
                 override fun onSuccess(response: HiResponse<T>) {
                     dispatchInterceptor(request, response)
 
+                    saveCacheIfNeed(response)
+
                     callback.onSuccess(response)
+
+                    HiLog.d("enqueue ,remote : " + request.getCacheKey())
                 }
 
                 override fun onFailed(throwable: Throwable) {
@@ -42,6 +72,30 @@ class Scheduler(
                 }
 
             })
+        }
+
+        private fun saveCacheIfNeed(response: HiResponse<T>) {
+            if (request.cacheStrategy == CacheStrategy.CACHE_FIRST
+                || request.cacheStrategy == CacheStrategy.NET_CACHE
+            ) {
+                if (response.data != null) {
+                    HiExecutor.execute(runnable = {
+                        HiCache.saveCache(request.getCacheKey(), response.data)
+                    })
+                }
+            }
+        }
+
+        private fun <T> readCache(): HiResponse<T> {
+            // HiCache 查询缓存 需要提供一个cache key
+            // request de url+参数
+            val cacheKey = request.getCacheKey()
+            val cache = HiCache.getCache<T>(cacheKey)
+            val cacheResponse = HiResponse<T>()
+            cacheResponse.data = cache
+            cacheResponse.code = HiResponse.CACHE_SUCCESS
+            cacheResponse.msg = "缓存获取成功"
+            return cacheResponse
         }
 
         private fun dispatchInterceptor(request: HiRequest, response: HiResponse<T>?) {
@@ -55,7 +109,7 @@ class Scheduler(
             private val request: HiRequest,
             private val response: HiResponse<T>?
         ) : HiInterceptor.Chain {
-            //代表的是 分发的第几个拦截器
+            // 代表的是 分发的第几个拦截器
             var callIndex: Int = 0
 
             override val isRequestPeriod: Boolean
@@ -78,9 +132,7 @@ class Scheduler(
                     dispatch()
                 }
             }
-
         }
     }
-
 }
 

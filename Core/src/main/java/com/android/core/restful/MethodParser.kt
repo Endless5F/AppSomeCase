@@ -9,6 +9,7 @@ class MethodParser(
 ) {
 
     private var replaceRelativeUrl: String? = null
+    private var cacheStrategy: Int = CacheStrategy.NET_ONLY
     private var domainUrl: String? = null
     private var formPost: Boolean = true
     private var httpMethod: Int = -1
@@ -32,7 +33,7 @@ class MethodParser(
     /**
      * interface ApiService {
      *  @Headers("auth-token:token", "accountId:123456")
-     *  @BaseUrl("https://api.mock.org/as/")
+     *  @BaseUrl("https://api.mock.com/")
      *  @POST("/cities/{province}")
      *  @GET("/cities")
      * fun listCities(@Path("province") province: Int,@Filed("page") page: Int): HiCall<JsonObject>
@@ -89,20 +90,22 @@ class MethodParser(
             val value = args[index]
             require(isPrimitive(value)) { "8 basic types are supported for now,index=$index" }
 
-            when (val annotation = annotations[0]) {
-                is Filed -> {
-                    val key = annotation.value
-                    val value = args[index]
-                    parameters[key] = value.toString()
-                }
-                is Path -> {
-                    val replaceName = annotation.value
-                    val replacement = value.toString()
+            val annotation = annotations[0]
+            if (annotation is Filed) {
+                val key = annotation.value
+                val value = args[index]
+                parameters[key] = value.toString()
+            } else if (annotation is Path) {
+                val replaceName = annotation.value
+                val replacement = value.toString()
+                if (replaceName != null && replacement != null) {
+                    //relativeUrl = home/{categroyId}
                     replaceRelativeUrl = relativeUrl.replace("{$replaceName}", replacement)
                 }
-                else -> {
-                    throw  IllegalStateException("cannot handle parameter annotation :" + annotation.javaClass.toString())
-                }
+            } else if (annotation is CacheStrategy) {
+                cacheStrategy = value as Int
+            } else {
+                throw  IllegalStateException("cannot handle parameter annotation :" + annotation.javaClass.toString())
             }
         }
 
@@ -113,37 +116,58 @@ class MethodParser(
 
         val annotations = method.annotations;
         for (annotation in annotations) {
-            if (annotation is GET) {
-                relativeUrl = annotation.value
-                httpMethod = HiRequest.METHOD.GET
-            } else if (annotation is POST) {
-                relativeUrl = annotation.value
-                httpMethod = HiRequest.METHOD.POST
-                formPost = annotation.formPost
-            } else if (annotation is Headers) {
-                val headersArray = annotation.value
-                //@Headers("auth-token:token", "accountId:123456")
-                for (header in headersArray) {
-                    val colon = header.indexOf(":")
-                    check(!(colon == 0 || colon == -1)) {
-                        String.format(
-                            "@headers value must be in the form [name:value] ,but found [%s]",
-                            header
-                        )
-                    }
-                    val name = header.substring(0, colon)
-                    val value = header.substring(colon + 1).trim()
-                    headers[name] = value
+            when (annotation) {
+                is GET -> {
+                    relativeUrl = annotation.value
+                    httpMethod = HiRequest.METHOD.GET
                 }
-            } else if (annotation is BaseUrl) {
-                domainUrl = annotation.value
-            } else {
-                throw IllegalStateException("cannot handle method annotation:" + annotation.javaClass.toString())
+                is POST -> {
+                    relativeUrl = annotation.value
+                    httpMethod = HiRequest.METHOD.POST
+                    formPost = annotation.formPost
+                }
+                is PUT -> {
+                    formPost = annotation.formPost
+                    httpMethod = HiRequest.METHOD.PUT
+                    relativeUrl = annotation.value
+                }
+                is DELETE -> {
+                    httpMethod = HiRequest.METHOD.DELETE
+                    relativeUrl = annotation.value
+                }
+                is Headers -> {
+                    val headersArray = annotation.value
+                    // @Headers("auth-token:token", "accountId:123456")
+                    for (header in headersArray) {
+                        val colon = header.indexOf(":")
+                        check(!(colon == 0 || colon == -1)) {
+                            String.format(
+                                "@headers value must be in the form [name:value] ,but found [%s]",
+                                header
+                            )
+                        }
+                        val name = header.substring(0, colon)
+                        val value = header.substring(colon + 1).trim()
+                        headers[name] = value
+                    }
+                }
+                is BaseUrl -> {
+                    domainUrl = annotation.value
+                }
+                is CacheStrategy -> {
+                    cacheStrategy = annotation.value
+                }
+                else -> {
+                    throw IllegalStateException("cannot handle method annotation:" + annotation.javaClass.toString())
+                }
             }
         }
 
-        require((httpMethod == HiRequest.METHOD.GET) || (httpMethod == HiRequest.METHOD.POST)) {
-            String.format("method %s must has one of GET,POST ", method.name)
+        require((httpMethod == HiRequest.METHOD.GET)
+                || (httpMethod == HiRequest.METHOD.POST
+                || (httpMethod == HiRequest.METHOD.PUT)
+                || (httpMethod == HiRequest.METHOD.DELETE))) {
+            String.format("method %s must has one of GET,POST,PUT,DELETE ", method.name)
         }
 
         if (domainUrl == null) {
@@ -210,6 +234,7 @@ class MethodParser(
         request.headers = headers
         request.httpMethod = httpMethod
         request.formPost = formPost
+        request.cacheStrategy = cacheStrategy
         return request
     }
 

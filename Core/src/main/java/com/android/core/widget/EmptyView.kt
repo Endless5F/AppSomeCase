@@ -1,4 +1,4 @@
-package com.android.core.common.ui.view
+package com.android.core.widget
 
 import android.content.Context
 import android.text.TextUtils

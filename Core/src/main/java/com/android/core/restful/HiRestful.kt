@@ -16,7 +16,7 @@ class HiRestful constructor(private val baserUrl: String, callFactory: HiCall.Fa
     /**
      * interface ApiService {
      *  @Headers("auth-token:token", "accountId:123456")
-     *  @BaseUrl("https://api.mock.org/as/")
+     *  @BaseUrl("https://api.mock.com/")
      *  @POST("/cities/{province}")
      *  @GET("/cities")
      * fun listCities(@Path("province") province: Int,@Filed("page") page: Int): HiCall<JsonObject>
@@ -28,7 +28,7 @@ class HiRestful constructor(private val baserUrl: String, callFactory: HiCall.Fa
             arrayOf<Class<*>>(service)
         ) { _, method, args ->
             //bugFix:此处需要考虑 空参数
-            var methodParser = methodService[method]
+            var methodParser = methodService.get(method)
             if (methodParser == null) {
                 methodParser = MethodParser.parse(baserUrl, method)
                 methodService[method] = methodParser

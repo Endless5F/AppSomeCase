@@ -1,4 +1,4 @@
-package com.android.core.common.ui.component;
+package com.android.core.common.component;
 
 import android.app.Application;
 

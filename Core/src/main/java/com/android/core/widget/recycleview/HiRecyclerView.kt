@@ -1,4 +1,4 @@
-package com.android.core.common.ui.view
+package com.android.core.widget.recycleview
 
 import android.content.Context
 import android.util.AttributeSet

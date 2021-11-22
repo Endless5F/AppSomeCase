@@ -1,4 +1,4 @@
-package com.android.core.common.ui.view
+package com.android.core.widget.input
 
 import android.annotation.SuppressLint
 import android.content.Context

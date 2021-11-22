@@ -1,4 +1,4 @@
-package com.android.core.common.ui.component
+package com.android.core.common.component
 
 import android.os.Bundle
 import android.view.View
@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.core.R
 import kotlinx.android.synthetic.main.fragment_list.*
 import kotlinx.android.synthetic.main.layout_content_loading_view.*
-import com.android.core.common.ui.view.EmptyView
-import com.android.core.common.ui.view.HiRecyclerView
+import com.android.core.widget.EmptyView
+import com.android.core.widget.recycleview.HiRecyclerView
 import com.android.core.widget.item.HiAdapter
 import com.android.core.widget.item.HiDataItem
 import com.android.core.widget.refresh.HiOverView

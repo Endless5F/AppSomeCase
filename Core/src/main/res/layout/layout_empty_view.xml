@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
 
-    <com.android.core.common.ui.view.IconFontTextView
+    <com.android.core.widget.IconFontTextView
         android:id="@+id/empty_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
             android:textSize="14sp"
             tools:text="虽然什么也没有,要不下拉刷新看看"/>
 
-        <com.android.core.common.ui.view.IconFontTextView
+        <com.android.core.widget.IconFontTextView
             android:id="@+id/empty_tips"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
