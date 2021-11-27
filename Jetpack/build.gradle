@@ -3,8 +3,11 @@ plugins {
     id 'kotlin-android'
 }
 
+// 目前compose暂不支持kotlin-1.6.0，待后续支持再升级
+def compose_version = "1.1.0-beta01"
+
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
@@ -28,7 +31,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion "1.0.0-rc02"
+        kotlinCompilerExtensionVersion "$compose_version"
         kotlinCompilerVersion kotlin_version
     }
 
@@ -48,16 +51,18 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 
-    implementation project(path: ':Core')
+    // 防止项目方法过多，超过65535，编译报错
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.3.0'
 
     // Room
     def room_version = "2.3.0"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-
-    // Datastore
-    implementation "androidx.datastore:datastore:1.0.0-rc01"
 
     // Lifecycle+LiveData+ViewModel
     def lifecycle_version = "2.3.1"
@@ -68,7 +73,6 @@ dependencies {
     // 各种库版本：https://developer.android.com/jetpack/androidx/releases/activity?hl=zh-cn
 
 
-    def compose_version = "1.0.0-rc02"
     // 1. ui
     implementation "androidx.compose.ui:ui:$compose_version"
     // Tooling support (Previews, etc.)
@@ -92,22 +96,20 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
 
-    // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.3.0-rc02'
-    // Integration with ViewModels
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
+    implementation 'androidx.activity:activity-ktx:1.3.1'
+    implementation 'androidx.activity:activity-compose:1.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0'
 
     /**
      * 查看Jetpack Compose 对应 Accompanist库版本号
-     * https://github.com/google/accompanist/releases/tag/v0.12.0
-     * Built to work with Jetpack Compose v1.0.0-beta09  专为与 Jetpack Compose 配合使用而构建
+     * https://github.com/google/accompanist/releases
+     * 注意文档中：Built to work with Jetpack Compose v1.0.0-beta09  专为与 Jetpack Compose 配合使用而构建
      *
      * 查看补充功能：https://github.com/google/accompanist
      * Accompanist 是一组库，旨在为 Jetpack Compose 补充开发人员通常需要但尚不可用的功能，例如ViewPager、Flow等。
      */
-    implementation 'com.google.accompanist:accompanist-insets:0.14.0'
-    implementation "com.google.accompanist:accompanist-pager:0.14.0"
-
-    implementation 'androidx.activity:activity-ktx:1.2.3'
+    def accompanist_version = "0.21.3-beta"
+    implementation "com.google.accompanist:accompanist-insets:$accompanist_version"
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
     //------------------------- Compose End---------------------------------------------
 }
