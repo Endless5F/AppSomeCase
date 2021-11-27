@@ -10,5 +10,5 @@ open class DebugExtension {
     var enable: Boolean = true
 
     // 是否开启transform的增量编译
-    var enableIncremental: Boolean = true
+    var enableIncremental: Boolean = false
 }

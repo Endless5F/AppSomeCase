@@ -72,6 +72,10 @@ class DebugTransform(private val project: Project) : Transform() {
     override fun transform(transformInvocation: TransformInvocation?) {
         super.transform(transformInvocation)
         transformInvocation ?: return
+        // 1. 对inputs--》directory--》class文件进行遍历
+        // 2. 对inputs--》jar--》class文件进行遍历
+        // 3. 符合我们项目包名，并且class文件路径包含 xxx.class结尾，还不能是buildconfig.class、R.class $.class文件
+
         val startTime = System.currentTimeMillis()
         initConfig()
 
