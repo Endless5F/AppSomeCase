@@ -3,11 +3,13 @@ package com.android.app
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import com.android.core.restful.HiCallback
 import com.android.core.restful.HiResponse
 import com.android.core.restful.demo.ApiFactory
 import com.android.core.restful.demo.TestApi
 import com.android.kmmshared.Greeting
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 

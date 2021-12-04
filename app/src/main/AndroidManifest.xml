@@ -3,6 +3,7 @@
     package="com.android.app">
 
     <application
+        android:name="com.android.core.common.component.HiBaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher_round"
         android:label="@string/app_name"

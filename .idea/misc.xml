@@ -46,6 +46,7 @@
         <entry key="app/src/main/res/drawable/shape_rect_bg.xml" value="0.40717948717948715" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3446557971014493" />
         <entry key="app/src/main/res/layout/adapter_item.xml" value="0.3446557971014493" />
+        <entry key="app/src/main/res/layout/demo_layout.xml" value="0.2866847826086957" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.41354166666666664" />
       </map>
     </option>
