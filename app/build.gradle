@@ -40,6 +40,8 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
     implementation project(path: ':Core')
     implementation project(path: ':kmmshared')
 }

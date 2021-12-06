@@ -22,13 +22,29 @@ kotlin {
     }
     
     sourceSets {
-        val commonMain by getting
-        val androidMain by getting
+        val commonMain by getting {
+            dependencies {
+//                implementation(KMMDeps.Kotlin.serialization)
+//                implementation(KMMDeps.Kotlin.datetime)
+//                implementation(KMMDeps.Stately.common)
+//                implementation(KMMDeps.Stately.collections)
+//                implementation(KMMDeps.Stately.concurrency)
+//                implementation(KMMDeps.Stately.isolate)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+//                implementation(KMMDeps.SqlDelight.androidDriver)
+            }
+        }
+
         val iosX64Main by getting
         val iosArm64Main by getting
         //val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependsOn(commonMain)
+            dependencies {
+//                implementation(KMMDeps.SqlDelight.nativeDriver)
+            }
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             //iosSimulatorArm64Main.dependsOn(this)
@@ -44,3 +60,20 @@ android {
         targetSdk = 30
     }
 }
+
+//sqldelight {
+//    database("SharedDB") {
+//        packageName = "com.android.kmm.db"
+//        verifyMigrations = true
+//    }
+//}
+//
+//tasks.withType<DokkaTask>().configureEach {
+//    dokkaSourceSets {
+//        registering {
+//            this.jdkVersion.set(8)
+//            noStdlibLink.set(true)
+//            this.sourceRoots.from(file("src/commonMain/kotlin"))
+//        }
+//    }
+//}
