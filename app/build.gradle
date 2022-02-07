@@ -43,7 +43,7 @@ dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
 
     implementation project(path: ':Core')
-    implementation project(path: ':kmmshared')
+//    implementation 'androidx.core:core-splashscreen:1.0.0-beta01'
 }
 
 //apply plugin: 'debug-plugin'

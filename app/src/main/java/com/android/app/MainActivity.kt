@@ -11,16 +11,16 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager.widget.ViewPager
-import com.android.app.fragment.ComponentFragment
 import com.android.app.fragment.FirstFragment
 import com.android.app.fragment.SecondFragment
 import com.android.app.fragment.ThirdFragment
-import com.android.app.fragment.switchFragment
 import com.android.core.restful.HiCallback
 import com.android.core.restful.HiResponse
 import com.android.core.restful.demo.ApiFactory
 import com.android.core.restful.demo.TestApi
-import com.android.kmmshared.Greeting
+import com.android.core.util.dip
+import com.android.core.widget.multiimage.ImageEntity
+import com.android.core.widget.multiimage.RecMultiImageLayout
 
 /** 首页效率在ViewPager中的位置  */
 const val VISION_HOME_EFFICIENCY = 0
@@ -81,9 +81,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        viewPager = findViewById(R.id.view_pager)
-        initViewPager()
-        initBottomBar()
+
+        val multiImageLayout = findViewById<RecMultiImageLayout>(R.id.iv_image)
+        val dataList = arrayListOf<ImageEntity>()
+
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("https://c-ssl.duitang.com/uploads/blog/202105/09/20210509225323_2c0c6.jpeg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+        multiImageLayout.showImages(dataList, intArrayOf(dip(10), dip(10)))
+//        multiImageLayout.showVideo("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg")
+//        viewPager = findViewById(R.id.view_pager)
+//        initViewPager()
+//        initBottomBar()
     }
 
     private fun initViewPager() {
@@ -306,7 +322,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             two -> {
 //                viewPager?.currentItem = 2
-                switchFragment(R.id.rootView, ComponentFragment())
+//                switchFragment(R.id.rootView, ComponentFragment())
             }
             three -> {
 //                viewPager?.currentItem = 3
@@ -348,8 +364,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     Log.e("jcy", "onFailed: ${throwable.message}")
                 }
             })
-
-        Greeting().greeting()
     }
 }
 
