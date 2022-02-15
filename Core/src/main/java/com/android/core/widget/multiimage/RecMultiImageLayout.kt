@@ -3,8 +3,11 @@ package com.android.core.widget.multiimage
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.text.TextUtils
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +22,12 @@ import kotlin.math.min
 
 const val REC_MAX_IMG = 9
 
+/** gif图播放结束消息  */
+const val MSG_GIF_POST_PLAY = 1
+
+/** gif图下载结束后进行播放  */
+const val MSG_GIF_START_AFTER_DOWNLOAD = 2
+
 @SuppressLint("ResourceAsColor")
 class RecMultiImageLayout : CardView {
 
@@ -29,12 +38,24 @@ class RecMultiImageLayout : CardView {
      */
     var isShowImgCount = true
 
-    var isItemClickable = false
+    /** 默认可点击  */
+    var isItemClickable = true
+
+    /** gif图正在播放的index  */
+    private var gifPlayIndex = -1
+
+    /** gif播放相关的handler  */
+    private var gifPlayHandler: Handler? = null
+
+    /** 是否点击查看了图片查看：用于判断gifPlayIndex变量是否重置(从图片查看器跳回也会触发update)  */
+    private var isPictureBrowser = false
 
     // 图片数量视图，图片总数超过3则展示-3
     private var imgCountView: TextView? = null
 
     private var playIconView: ImageView? = null
+
+    private var images: List<ImageEntity>? = null
 
     private val imageViews = mutableListOf<MultiImageItemView>()
 
@@ -51,9 +72,44 @@ class RecMultiImageLayout : CardView {
     init {
         radius = context.dip(10).toFloat()
         elevation = 0f
-        setCardBackgroundColor(R.color.color_00a)
+        setCardBackgroundColor(context.getColor(R.color.color_fff))
+
         layoutParams =
-            LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        initHandler()
+    }
+
+    /**
+     * 初始化handler
+     */
+    private fun initHandler() {
+        gifPlayHandler = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                super.handleMessage(msg)
+                when (msg.what) {
+                    // 当前gif播放完毕后，播放下一张gif图
+                    MSG_GIF_POST_PLAY -> {
+                        if (gifPlayIndex < 0 || imageViews.size < gifPlayIndex) {
+                            return
+                        }
+                        val nextGifIndex = findNextGifIndex(gifPlayIndex)
+                        if (nextGifIndex < 0 || nextGifIndex == gifPlayIndex) {
+                            // 没有gif图/当前仅有一张gif图
+                            return
+                        }
+                        val baseImg = imageViews[gifPlayIndex]
+
+                        baseImg.stopPlayGif()
+                        startPlayGif(nextGifIndex)
+                    }
+                    // 下载完毕后开始自动播放（从第一张开始）
+                    MSG_GIF_START_AFTER_DOWNLOAD -> {
+                        startPlayGif(findFirstGifIndex())
+                    }
+                }
+            }
+        }
     }
 
     fun setMultiImageStrategy(strategy: MultiImageStrategy) {
@@ -61,27 +117,36 @@ class RecMultiImageLayout : CardView {
     }
 
     /**
+     * @param marginArray 此margin 为整个Layout距离屏幕两边的间距
+     */
+    fun setMarginArray(marginArray: IntArray = intArrayOf(0, 0)) {
+        strategy.setMarginArray(marginArray)
+    }
+
+    /**
      * @param marginArray 0: left，1：right；
      */
     @SuppressLint("SetTextI18n")
-    fun showImages(images: List<ImageEntity>?, marginArray: IntArray = intArrayOf(0, 0)) {
+    fun showImages(images: List<ImageEntity>?) {
         images ?: return
         if (images.isEmpty()) {
             return
         }
+        this.images = images
         val targetCount: Int = min(images.size, REC_MAX_IMG)
         if (targetCount == 1) {
             val itemImage = images[0]
-            strategy.setImageSize(itemImage.width, itemImage.height)
+            strategy.setShowPercent(itemImage.heightWidthRatio)
         }
-        strategy.setMarginArray(marginArray)
         strategy.setImageCount(targetCount)
         // 1张图片样式较多，需要重新设置高宽，避免复用上一个样式
         setImageCountAndStyle(targetCount)
         for (i in 0 until targetCount) {
             val v = imageViews[i]
-            v.showImageWithUrl(images.getOrNull(i)?.imageUrl)
-            v.showTextTagView("第$i")
+            images.getOrNull(i)?.let {
+                v.showTextTagView(it.textTag)
+                v.showImageWithUrl(it.imageUrl, it.imgOrigin, it.type)
+            }
         }
         var showCount = false
         // 设置最后一张 显示 +N 的剩余张数标识
@@ -112,15 +177,15 @@ class RecMultiImageLayout : CardView {
         playIconView?.visibility = View.GONE
     }
 
-    fun showVideo(videoCoverUrl: String?, marginArray: IntArray = intArrayOf(0, 0)) {
-        strategy.setShowPercent(16f / 9)
-        strategy.setMarginArray(marginArray)
+    fun showVideo(videoCoverUrl: String?, duration: String) {
+        strategy.setShowPercent(9f / 16, true)
         strategy.setImageCount(1)
 
         setImageCountAndStyle(1)
 
-        val v = imageViews[0]
-        v.showImageWithUrl(videoCoverUrl)
+        val v = imageViews.getOrNull(0)
+        v?.showImageWithUrl(videoCoverUrl)
+        v?.showTextTagView(duration)
 
         val iconSize = context.dip(35)
         if (playIconView == null) {
@@ -163,8 +228,18 @@ class RecMultiImageLayout : CardView {
             var currentImageView: MultiImageItemView
             if (imageViews.size < i + 1) {
                 currentImageView = MultiImageItemView(context)
+                currentImageView.setGifPlayHandler(gifPlayHandler)
                 if (isItemClickable) {
                     currentImageView.setOnClickListener {
+                        stopPlay()
+                        // 如果当前点击的图片为gif图, 则下次返回从当前gif图开始播放
+                        if (currentImageView.isGifType()) {
+                            isPictureBrowser = true
+                            gifPlayIndex = i
+                        } else {
+                            gifPlayIndex = -1
+                        }
+
                         onImageItemClickCallback?.invoke(i)
                     }
                 }
@@ -178,7 +253,7 @@ class RecMultiImageLayout : CardView {
             var layoutParams = currentImageView.layoutParams as? LayoutParams
             val rect = strategy.imageRectList[i]
             if (layoutParams == null) {
-                layoutParams = LayoutParams(context, null)
+                layoutParams = LayoutParams(rect.width(), rect.height())
             }
 
             layoutParams.width = rect.width()
@@ -186,8 +261,135 @@ class RecMultiImageLayout : CardView {
             layoutParams.marginStart = rect.left
             layoutParams.topMargin = rect.top
 
-            Log.e("jcy", "setImageCountAndStyle: $i  ${rect.width()}")
             currentImageView.layoutParams = layoutParams
         }
     }
+
+    /**---------------------------------GIF start---------------------------------------*/
+
+    fun onViewResume() {
+        if (!isPictureBrowser) {
+            gifPlayIndex = -1
+        } else {
+            // 如果是图片浏览器返回到广场页触发的update，播放动画要从当前位置开始
+            isPictureBrowser = false
+            if (gifPlayIndex < 0 || gifPlayIndex >= imageViews.size
+                || !imageViews[gifPlayIndex].isGifResourceReady()
+            ) {
+                // 保证返回的gif图为已加载完毕的
+                gifPlayIndex = findFirstGifIndex()
+            }
+        }
+    }
+
+    fun startPlay() {
+        if (gifPlayIndex < 0) {
+            gifPlayIndex = findFirstGifIndex()
+            if (gifPlayIndex < 0) {
+                return
+            }
+        }
+
+        if (gifPlayIndex < imageViews.size && imageViews[gifPlayIndex].isGifRunning()) {
+            return
+        }
+        startPlayGif(gifPlayIndex)
+    }
+
+    fun needStopPlay(): Boolean {
+        return false
+    }
+
+    fun stopPlay() {
+        if (gifPlayIndex < 0) {
+            return
+        }
+        for (baseImg in imageViews) {
+            baseImg.stopPlayGif()
+        }
+        gifPlayHandler?.removeMessages(MSG_GIF_POST_PLAY)
+        gifPlayHandler?.removeMessages(MSG_GIF_START_AFTER_DOWNLOAD)
+    }
+
+    /**
+     * 开始播放指定[index]位置的gif图
+     */
+    private fun startPlayGif(index: Int) {
+        // 校验index合理性
+        if (index < 0 || index >= imageViews.size) {
+            return
+        }
+
+        val baseImg = imageViews[index]
+        if (baseImg.isGifResourceReady()) {
+            // 如果gif图加载完毕后，开始进行播放
+            gifPlayIndex = index
+            baseImg.startPlayGif(images?.getOrNull(gifPlayIndex)?.type)
+        } else {
+            val firstGifIndex = findFirstGifIndex()
+            val url = images?.getOrNull(firstGifIndex)?.imgOrigin
+            val type = images?.getOrNull(firstGifIndex)?.type
+            if (index == firstGifIndex) {
+                // 如果是第一张gif图，则需要等待gif下载好后触发播放任务
+                baseImg.downloadGifResource(true, url, type)
+            } else {
+                // 资源未ready，开始进行gif图下载
+                baseImg.downloadGifResource(false, url, type)
+                // 同时开始播放第一张gif图
+                startPlayGif(firstGifIndex)
+            }
+        }
+
+        // 开启nextGif的资源下载
+        val nextGifIndex = findNextGifIndex(index)
+        if (nextGifIndex >= 0 && nextGifIndex != gifPlayIndex && nextGifIndex < imageViews.size) {
+            val nextImage = imageViews[nextGifIndex]
+            if (!nextImage.isGifResourceReady()) {
+                val url = images?.getOrNull(nextGifIndex)?.imgOrigin
+                val type = images?.getOrNull(nextGifIndex)?.type
+                nextImage.downloadGifResource(false, url, type)
+            }
+        }
+    }
+
+    /**
+     * 返回第一个gif图资源
+     */
+    private fun findFirstGifIndex(): Int {
+        return findNextGifIndex(-1)
+    }
+
+    /**
+     * 根据当前播放的gif[curIndex]获取下一个gif图资源
+     */
+    private fun findNextGifIndex(curIndex: Int): Int {
+        images?.let {
+            if (it.isEmpty()) {
+                return -1
+            }
+            // 从当前正在播放的gif图后面的一张开始找
+            var beginIndex = 0.coerceAtLeast(curIndex + 1)
+            // 如果下一张gif图index超出展示的最大图片数量,返回第一张gif资源的index
+            if (beginIndex >= REC_MAX_IMG || beginIndex >= it.size) {
+                return findFirstGifIndex()
+            }
+            var imageIndex: Int
+            for (i in it.indices) {
+                // beginIndex可能会超过image列表的size
+                imageIndex = beginIndex % it.size
+                if (TextUtils.equals(it[imageIndex].type, STYLE_MOTIVE)) {
+                    return imageIndex
+                }
+                beginIndex++
+            }
+        }
+        // 没有gif资源/gif资源没有准备好
+        return -1
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stopPlay()
+    }
+/**---------------------------------GIF end---------------------------------------*/
 }

@@ -16,7 +16,7 @@
     <com.android.core.widget.multiimage.RecMultiImageLayout
         android:id="@+id/iv_image"
         android:layout_margin="@dimen/dp_10"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <LinearLayout

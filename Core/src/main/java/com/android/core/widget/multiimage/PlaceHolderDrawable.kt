@@ -27,7 +27,7 @@ class PlaceHolderDrawable private constructor(context: Context, private val prop
         /**
          * @param proportion logo默认占视图比例
          */
-        fun rectangleLogo(context: Context, proportion: Float = (1 / 4.toFloat())): Drawable {
+        fun rectangleLogo(context: Context, proportion: Float = (1 / 3.toFloat())): Drawable {
             return PlaceHolderDrawable(context, proportion)
         }
     }
