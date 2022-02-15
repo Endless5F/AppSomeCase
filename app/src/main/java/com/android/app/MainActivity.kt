@@ -18,7 +18,7 @@ import com.android.core.restful.HiCallback
 import com.android.core.restful.HiResponse
 import com.android.core.restful.demo.ApiFactory
 import com.android.core.restful.demo.TestApi
-import com.android.core.util.dip
+import com.android.core.utils.dip
 import com.android.core.widget.multiimage.ImageEntity
 import com.android.core.widget.multiimage.RecMultiImageLayout
 

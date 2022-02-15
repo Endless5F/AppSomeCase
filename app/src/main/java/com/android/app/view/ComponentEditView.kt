@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.android.app.R
+import com.android.core.utils.wrapFrameLayoutParam
 
 /**
  * 组件编辑View
@@ -32,7 +33,7 @@ class ComponentEditView: FrameLayout {
 
         addView(ImageView(context).apply {
             setImageResource(R.drawable.ic_launcher_round)
-            layoutParams = LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            layoutParams = wrapFrameLayoutParam.apply {
                 gravity = Gravity.CENTER
             }
         })

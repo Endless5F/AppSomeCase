@@ -15,9 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.android.core.R
-import com.android.core.util.HiDisplayUtil
-import com.android.core.util.HiRes
-import com.android.core.widget.cityselector.*
+import com.android.core.utils.HiDisplayUtil
+import com.android.core.utils.HiRes
 import com.android.core.widget.item.HiViewHolder
 import com.android.core.widget.tab.top.HiTabTopInfo
 import kotlinx.android.synthetic.main.dialog_city_selector.*

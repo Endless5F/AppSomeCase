@@ -13,7 +13,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.android.core.R
-import com.android.core.util.dip
+import com.android.core.utils.dip
 import com.android.core.widget.ImageTextButton
 
 /**

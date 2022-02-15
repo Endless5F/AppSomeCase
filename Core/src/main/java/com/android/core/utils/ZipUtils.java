@@ -1,6 +1,6 @@
-package com.android.core.util;
+package com.android.core.utils;
 
-import static com.android.core.util.StringUtils.toHexString;
+import static com.android.core.utils.StringUtil.toHexString;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -261,16 +261,16 @@ public final class ZipUtils {
                     continue;
                 }
                 if (!saveFile.exists()) {
-                    FileUtils.createFileSafely(saveFile);
+                    FileUtil.createFileSafely(saveFile);
                 }
                 FileOutputStream fos = null;
                 try {
                     bis = new BufferedInputStream(zipFile.getInputStream(zipEntry));
                     fos = new FileOutputStream(saveFile);
-                    bos = new BufferedOutputStream(fos, FileUtils.getFSBlockSize());
+                    bos = new BufferedOutputStream(fos, FileUtil.getFSBlockSize());
                     int count = -1;
-                    byte[] buf = new byte[FileUtils.getFSBlockSize()];
-                    while ((count = bis.read(buf, 0, FileUtils.getFSBlockSize())) != -1) {
+                    byte[] buf = new byte[FileUtil.getFSBlockSize()];
+                    while ((count = bis.read(buf, 0, FileUtil.getFSBlockSize())) != -1) {
                         bos.write(buf, 0, count);
                     }
 

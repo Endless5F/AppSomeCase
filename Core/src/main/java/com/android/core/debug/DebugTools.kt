@@ -3,8 +3,8 @@ package com.android.core.debug
 import android.content.Intent
 import android.os.Process
 import androidx.multidex.BuildConfig
-import com.android.core.util.AppGlobals
-import com.android.core.util.SPUtil
+import com.android.core.utils.AppGlobals
+import com.android.core.utils.SPUtil
 
 class DebugTools {
 

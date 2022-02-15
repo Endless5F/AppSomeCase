@@ -1,4 +1,4 @@
-package com.android.core.util;
+package com.android.core.utils;
 
 import android.text.TextUtils;
 import android.util.Xml;
@@ -16,12 +16,12 @@ import java.util.zip.ZipOutputStream;
 /**
  * 公共类：用于封装常用的 I/O 操作。
  */
-public class StreamUtils {
+public class StreamUtil {
 
     /**
      * TAG
      */
-    private static final String TAG = StreamUtils.class.getSimpleName();
+    private static final String TAG = StreamUtil.class.getSimpleName();
 
     /**
      * 全局debug开关
@@ -134,7 +134,7 @@ public class StreamUtils {
     }
 
     /**
-     * 将输入流中的数据保存到文件，已废弃，请使用{@link FileUtils#saveToFileWithReturn(InputStream inputStream, File file, boolean append)}
+     * 将输入流中的数据保存到文件，已废弃，请使用{@link FileUtil#saveToFileWithReturn(InputStream inputStream, File file, boolean append)}
      *
      * @param is   输入流
      * @param file 目标文件
@@ -231,7 +231,7 @@ public class StreamUtils {
      * @return 字符串
      */
     public static String getStringFromInput(InputStream inputStream) {
-        String str = FileUtils.readInputStream(inputStream);
+        String str = FileUtil.readInputStream(inputStream);
         if (str.startsWith("\ufeff")) {
             str = str.substring(1);
         }

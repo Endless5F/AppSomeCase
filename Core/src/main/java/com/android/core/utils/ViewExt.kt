@@ -1,4 +1,4 @@
-package com.android.core.util
+package com.android.core.utils
 
 import android.graphics.drawable.GradientDrawable
 import android.view.View
@@ -15,13 +15,17 @@ fun View.getXYOnScreen(): Pair<Int, Int> {
     return Pair(location[0], location[1])
 }
 
-fun getUnDisplayViewWidth(view: View): Int {
-    val width = View.MeasureSpec.makeMeasureSpec(0,
-            View.MeasureSpec.UNSPECIFIED)
-    val height = View.MeasureSpec.makeMeasureSpec(0,
-            View.MeasureSpec.UNSPECIFIED)
-    view.measure(width, height)
-    return view.measuredWidth
+fun View.getUnDisplayViewSize(): Pair<Int, Int> {
+    val width = View.MeasureSpec.makeMeasureSpec(
+        0,
+        View.MeasureSpec.UNSPECIFIED
+    )
+    val height = View.MeasureSpec.makeMeasureSpec(
+        0,
+        View.MeasureSpec.UNSPECIFIED
+    )
+    measure(width, height)
+    return Pair(measuredWidth, measuredHeight)
 }
 
 inline var View.marginStart: Int

@@ -1,6 +1,6 @@
 package com.android.core.crash
 
-import com.android.core.util.AppGlobals
+import com.android.core.utils.AppGlobals
 import java.io.File
 
 object CrashMgr {

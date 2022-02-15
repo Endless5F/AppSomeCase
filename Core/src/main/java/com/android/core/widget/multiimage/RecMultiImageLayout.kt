@@ -15,8 +15,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import com.android.core.R
-import com.android.core.util.dip
-import com.android.core.util.imageResource
+import com.android.core.utils.dip
+import com.android.core.utils.imageResource
 import kotlin.math.max
 import kotlin.math.min
 

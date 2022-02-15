@@ -1,4 +1,4 @@
-package com.android.core.util
+package com.android.core.utils
 
 import android.app.Application
 import java.lang.Exception

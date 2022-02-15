@@ -1,4 +1,4 @@
-package com.android.core.util;
+package com.android.core.utils;
 
 import android.text.TextUtils;
 
@@ -8,12 +8,12 @@ import java.util.Locale;
  * 内部类单例模式保证线程安全且通过类的装载实现lazy-loading
  * 扩展方法请先增加IStringUtils
  */
-public final class StringUtils {
+public final class StringUtil {
 
     /**
      * 私有构造方法
      */
-    private StringUtils() {
+    private StringUtil() {
 
     }
 

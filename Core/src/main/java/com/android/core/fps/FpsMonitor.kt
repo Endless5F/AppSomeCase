@@ -14,8 +14,8 @@ import android.view.WindowManager
 import android.widget.TextView
 import com.android.core.R
 import com.android.core.log.HiLog
-import com.android.core.util.ActivityManager
-import com.android.core.util.AppGlobals
+import com.android.core.utils.ActivityManager
+import com.android.core.utils.AppGlobals
 import java.text.DecimalFormat
 
 object FpsMonitor {

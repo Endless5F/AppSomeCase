@@ -4,7 +4,7 @@ import android.text.TextUtils
 import android.util.Log
 import com.android.core.BuildConfig
 import com.android.core.executor.HiExecutor
-import com.android.core.util.MainHandler
+import com.android.core.utils.MainHandler
 import java.lang.StringBuilder
 import java.util.*
 import kotlin.collections.HashMap

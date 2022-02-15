@@ -1,8 +1,7 @@
-package com.android.core.util
+package com.android.core.utils
 
 import android.app.Activity
 import android.app.Application
-import android.os.Build
 import android.os.Bundle
 import java.lang.ref.WeakReference
 

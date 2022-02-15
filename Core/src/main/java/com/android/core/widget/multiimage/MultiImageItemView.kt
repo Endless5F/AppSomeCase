@@ -15,8 +15,8 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.android.core.AppRuntime
 import com.android.core.R
-import com.android.core.util.createRectDrawable
-import com.android.core.util.dip
+import com.android.core.utils.createRectDrawable
+import com.android.core.utils.dip
 import com.facebook.common.executors.CallerThreadExecutor
 import com.facebook.common.references.CloseableReference
 import com.facebook.datasource.DataSource

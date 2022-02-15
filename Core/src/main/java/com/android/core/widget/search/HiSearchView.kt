@@ -12,7 +12,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.*
 import com.android.core.R
-import com.android.core.util.dip
+import com.android.core.utils.dip
 
 /**
  *

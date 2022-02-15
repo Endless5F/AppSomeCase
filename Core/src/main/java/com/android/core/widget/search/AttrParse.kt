@@ -7,7 +7,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import com.android.core.R
-import com.android.core.util.dip
+import com.android.core.utils.dip
 
 /**
  *

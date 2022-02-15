@@ -4,7 +4,7 @@ import com.android.core.cache.HiCache
 import com.android.core.executor.HiExecutor
 import com.android.core.log.HiLog
 import com.android.core.restful.annotation.CacheStrategy
-import com.android.core.util.MainHandler
+import com.android.core.utils.MainHandler
 
 /**
  * 代理CallFactory创建出来的call对象，从而实现拦截器的派发动作

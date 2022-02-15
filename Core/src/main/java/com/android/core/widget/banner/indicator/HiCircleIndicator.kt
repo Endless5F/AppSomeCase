@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import com.android.core.R
-import com.android.core.util.dip
+import com.android.core.utils.dip
 
 /**
  * 圆形指示器

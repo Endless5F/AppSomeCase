@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.core.R
-import com.android.core.util.getScreenWidth
+import com.android.core.utils.getScreenWidth
 import kotlinx.android.synthetic.main.hi_debug_tool.*
 import java.lang.reflect.Method
 

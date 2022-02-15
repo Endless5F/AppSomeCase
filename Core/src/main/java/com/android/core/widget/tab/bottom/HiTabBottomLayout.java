@@ -16,9 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.core.R;
-import com.android.core.util.AppGlobals;
-import com.android.core.util.DimensionsKt;
-import com.android.core.util.HiViewUtil;
+import com.android.core.utils.AppGlobals;
+import com.android.core.utils.DimensionsKt;
+import com.android.core.utils.HiViewUtil;
 import com.android.core.widget.tab.common.IHiTabLayout;
 
 import java.util.ArrayList;

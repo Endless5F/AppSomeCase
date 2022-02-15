@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-import com.android.core.util.DimensionsKt;
+import com.android.core.utils.DimensionsKt;
 
 /**
  * 下拉刷新的Overlay视图,可以重载这个类来定义自己的Overlay

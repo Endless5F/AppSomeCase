@@ -1,4 +1,4 @@
-package com.android.core.util
+package com.android.core.utils
 
 var android.view.View.backgroundColor: Int
     @Deprecated(NO_GETTER, level = DeprecationLevel.ERROR) get() = noGetter()

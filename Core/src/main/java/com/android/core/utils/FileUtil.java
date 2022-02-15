@@ -1,4 +1,4 @@
-package com.android.core.util;
+package com.android.core.utils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -30,7 +30,7 @@ import java.util.zip.GZIPOutputStream;
  * <br>
  * 这个类新加了得到缓存文件的路径的方法
  */
-public final class FileUtils {
+public final class FileUtil {
 
     /**
      * DEBUG
@@ -90,7 +90,7 @@ public final class FileUtils {
     /**
      * private
      */
-    private FileUtils() {
+    private FileUtil() {
 
     }
 

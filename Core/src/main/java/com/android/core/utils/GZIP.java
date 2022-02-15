@@ -1,6 +1,6 @@
-package com.android.core.util;
+package com.android.core.utils;
 
-import static com.android.core.util.StringUtils.toHexString;
+import static com.android.core.utils.StringUtil.toHexString;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

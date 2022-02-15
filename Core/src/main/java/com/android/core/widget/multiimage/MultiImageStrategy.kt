@@ -2,8 +2,8 @@ package com.android.core.widget.multiimage
 
 import android.graphics.Rect
 import com.android.core.AppRuntime
-import com.android.core.util.dip
-import com.android.core.util.getScreenWidth
+import com.android.core.utils.dip
+import com.android.core.utils.getScreenWidth
 import kotlin.math.min
 
 // 单行显示个数

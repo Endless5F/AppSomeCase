@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.core.util.DimensionsKt;
+import com.android.core.utils.DimensionsKt;
 
 public class HiViewPrinterProvider {
     private final FrameLayout rootView;

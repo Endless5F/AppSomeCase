@@ -1,4 +1,4 @@
-package com.android.core.util
+package com.android.core.utils
 
 import android.annotation.TargetApi
 import android.app.Activity
@@ -14,8 +14,8 @@ import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import com.android.core.util.MainHandler.postDelay
-import com.android.core.util.PermissionUtil.OnRationaleListener.ShouldRequest
+import com.android.core.utils.MainHandler.postDelay
+import com.android.core.utils.PermissionUtil.OnRationaleListener.ShouldRequest
 import java.util.*
 
 class PermissionUtil private constructor(vararg permissions: String) {

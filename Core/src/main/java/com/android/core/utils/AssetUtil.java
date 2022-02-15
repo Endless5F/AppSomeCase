@@ -1,4 +1,4 @@
-package com.android.core.util;
+package com.android.core.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -16,7 +16,7 @@ import java.util.zip.ZipInputStream;
 /**
  * asset工具类
  */
-public final class AssetUtils {
+public final class AssetUtil {
 
     /**
      * 全局debug开关
@@ -31,7 +31,7 @@ public final class AssetUtils {
     /**
      * private constructor
      */
-    private AssetUtils() {
+    private AssetUtil() {
 
     }
 
@@ -129,7 +129,7 @@ public final class AssetUtils {
     public static boolean extractFileFromAsset(AssetManager amgr, String src, String dst) {
         boolean bRet = false;
         try {
-            bRet = StreamUtils.streamToFile(amgr.open(src, Context.MODE_PRIVATE), new File(dst));
+            bRet = StreamUtil.streamToFile(amgr.open(src, Context.MODE_PRIVATE), new File(dst));
             if (!bRet) {
                 new File(dst).delete();
             }
@@ -160,7 +160,7 @@ public final class AssetUtils {
             }
 
             // 获取预置文件中的字符串
-            configStr = StreamUtils.streamToString(is);
+            configStr = StreamUtil.streamToString(is);
         } catch (IOException e) {
             if (DEBUG) {
                 Log.w(TAG, "loadPresetDatas", e);
@@ -197,7 +197,7 @@ public final class AssetUtils {
             inputStream = context.getApplicationContext().getAssets().open(assetPath);
             zipInputStream = new ZipInputStream(inputStream);
             ZipEntry nextEntry;
-            byte[] buffer = new byte[FileUtils.BUFFER_SIZE];
+            byte[] buffer = new byte[FileUtil.BUFFER_SIZE];
             int count;
 
             while ((nextEntry = zipInputStream.getNextEntry()) != null) {
@@ -213,9 +213,9 @@ public final class AssetUtils {
                 }
 
                 if (!saveFile.exists()) {
-                    FileUtils.createFileSafely(saveFile);
+                    FileUtil.createFileSafely(saveFile);
                     try {
-                        bos = new BufferedOutputStream(new FileOutputStream(saveFile), FileUtils.UNZIP_BUFFER);
+                        bos = new BufferedOutputStream(new FileOutputStream(saveFile), FileUtil.UNZIP_BUFFER);
                         while ((count = zipInputStream.read(buffer)) != -1) {
                             bos.write(buffer, 0, count);
                         }
@@ -253,7 +253,7 @@ public final class AssetUtils {
         InputStream inputStream = null;
         try {
             inputStream = context.getAssets().open(assetPath);
-            return FileUtils.readInputStream(inputStream);
+            return FileUtil.readInputStream(inputStream);
         } catch (IOException e) {
             if (DEBUG) {
                 e.printStackTrace();

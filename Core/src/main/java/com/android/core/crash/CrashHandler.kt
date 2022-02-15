@@ -9,8 +9,8 @@ import android.os.StatFs
 import android.text.format.Formatter
 import com.android.core.BuildConfig
 import com.android.core.log.HiLog
-import com.android.core.util.ActivityManager
-import com.android.core.util.AppGlobals
+import com.android.core.utils.ActivityManager
+import com.android.core.utils.AppGlobals
 import java.io.*
 import java.lang.Exception
 import java.text.SimpleDateFormat

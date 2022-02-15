@@ -1,4 +1,4 @@
-package com.android.core.util
+package com.android.core.utils
 
 import android.Manifest
 import android.os.Build

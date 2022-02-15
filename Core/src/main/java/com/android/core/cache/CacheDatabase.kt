@@ -3,7 +3,7 @@ package com.android.core.cache
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.android.core.util.AppGlobals
+import com.android.core.utils.AppGlobals
 
 /**
  *

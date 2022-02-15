@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import com.android.core.util.DimensionsKt;
+import com.android.core.utils.DimensionsKt;
 
 /**
  * 数字指示器
