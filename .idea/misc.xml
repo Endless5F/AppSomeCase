@@ -7,13 +7,20 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.4244791666666667" />
         <entry key="../../.gradle/caches/transforms-3/ceee79a72826510e70600d020f552341/transformed/jetified-appcompat-resources-1.2.0/res/drawable/abc_vector_test.xml" value="0.24270833333333333" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2525" />
+        <entry key="app/src/main/res/drawable/drawable_home_progress.xml" value="0.2525" />
         <entry key="app/src/main/res/drawable/ic_animated_vector_center_icon.xml" value="0.41354166666666664" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.24270833333333333" />
+        <entry key="app/src/main/res/drawable/progressbar_h_shape1.xml" value="0.2525" />
+        <entry key="app/src/main/res/layout/activity_land.xml" value="0.2753623188405797" />
+        <entry key="app/src/main/res/layout/activity_land_star.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.19326241134751773" />
         <entry key="app/src/main/res/layout/activity_second.xml" value="0.19326241134751773" />
         <entry key="app/src/main/res/layout/fragment_center.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/fragment_component.xml" value="0.286231884057971" />
         <entry key="app/src/main/res/layout/fragment_layout.xml" value="0.26856884057971014" />
+        <entry key="app/src/main/res/layout/layout_planet_view.xml" value="0.2753623188405797" />
+        <entry key="app/src/main/res/layout/layout_star_child.xml" value="0.2753623188405797" />
+        <entry key="app/src/main/res/layout/layout_sun_view.xml" value="0.2753623188405797" />
       </map>
     </option>
   </component>

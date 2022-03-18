@@ -21,6 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".PlanetActivity"
+            android:theme="@style/LandTheme" />
     </application>
 
 </manifest>

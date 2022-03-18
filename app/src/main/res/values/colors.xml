@@ -8,12 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!--闪屏中心图标后面的背景色-->
-    <color name="splash_screen_icon_background">#8800FF</color>
-    <!--统一全局窗口背景色-->
-    <color name="window_common_background_color">#FFFFFF</color>
-
-    <!--针对android 6.0以上的设备-->
-    <color name="splash_screen_statusBarColor">@android:color/transparent</color>
-    <color name="splash_screen_navigationBarColor">@android:color/transparent</color>
+    <color name="color_D81B60">#D81B60</color>
 </resources>

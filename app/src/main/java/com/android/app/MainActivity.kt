@@ -1,13 +1,14 @@
 package com.android.app
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.android.core.utils.dip
 import com.android.core.widget.multiimage.ImageEntity
 import com.android.core.widget.multiimage.RecMultiImageLayout
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +30,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         multiImageLayout.setMarginArray(intArrayOf(dip(10), dip(10)))
         multiImageLayout.showImages(dataList)
 //        multiImageLayout.showVideo("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg")
-    }
 
-    override fun onClick(v: View?) {
-
+        findViewById<Button>(R.id.button)?.setOnClickListener {
+            startActivity(Intent(this@MainActivity, PlanetActivity::class.java))
+        }
+        findViewById<Button>(R.id.button2)?.setOnClickListener {
+            startActivity(Intent(this@MainActivity, PlanetActivity::class.java).apply{
+                putExtra("isDemo",false)
+            })
+        }
     }
 }
