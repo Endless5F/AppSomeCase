@@ -43,7 +43,9 @@ fun Home() {
                     0 -> ChatList(viewModel.chats)
                     1 -> Column(
                         Modifier
-                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .width(IntrinsicSize.Min)
+                            .width(IntrinsicSize.Max)
                             .fillMaxHeight()
                             .align(Alignment.Center)
                             .background(WeTheme.colors.background)) {

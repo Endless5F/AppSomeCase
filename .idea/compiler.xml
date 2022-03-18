@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.7">
+    <bytecodeTargetLevel target="11">
       <module name="AppBox.Jetpack" target="11" />
+      <module name="AppBox.kmmshared" target="11" />
       <module name="AppBox.KmmShared" target="11" />
       <module name="AppBox.Lib-Favorites.BuildSrcPlugin" target="11" />
     </bytecodeTargetLevel>

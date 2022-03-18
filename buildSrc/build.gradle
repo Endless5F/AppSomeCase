@@ -1,6 +1,0 @@
-apply plugin: 'groovy'
-
-dependencies {
-    compileOnly gradleApi()
-    compileOnly localGroovy()
-}
