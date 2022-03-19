@@ -14,9 +14,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val multiImageLayout = findViewById<RecMultiImageLayout>(R.id.iv_image)
-        val dataList = arrayListOf<ImageEntity>()
-        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
+//        val multiImageLayout = findViewById<RecMultiImageLayout>(R.id.iv_image)
+//        val dataList = arrayListOf<ImageEntity>()
+//        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
@@ -26,9 +26,8 @@ class MainActivity : AppCompatActivity() {
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
 //        dataList.add(ImageEntity("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg"))
-
-        multiImageLayout.setMarginArray(intArrayOf(dip(10), dip(10)))
-        multiImageLayout.showImages(dataList)
+//        multiImageLayout.setMarginArray(intArrayOf(dip(10), dip(10)))
+//        multiImageLayout.showImages(dataList)
 //        multiImageLayout.showVideo("http://inews.gtimg.com/newsapp_match/0/11697869775/0.jpg")
 
         findViewById<Button>(R.id.button)?.setOnClickListener {

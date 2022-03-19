@@ -6,18 +6,17 @@
     android:background="@color/color_00a"
     android:orientation="vertical">
 
-    <com.android.core.widget.multiimage.RecMultiImageLayout
-        android:id="@+id/iv_image"
-        android:layout_margin="@dimen/dp_10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <!--    <com.android.core.widget.multiimage.RecMultiImageLayout-->
+    <!--        android:id="@+id/iv_image"-->
+    <!--        android:layout_margin="@dimen/dp_10"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content" />-->
 
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="300dp"
         android:layout_marginEnd="8dp"
         android:text="Demo" />
 
@@ -25,9 +24,58 @@
         android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="360dp"
         android:layout_marginEnd="8dp"
         android:text="星球" />
+
+    <com.android.app.view.OvalView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="200dp">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/planet_diqiu_activated" />
+
+    </com.android.app.view.OvalView>
 
 </FrameLayout>

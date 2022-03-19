@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="#AAFFFFFF"
+        android:text="国漫星"
         tools:text="国漫星"/>
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -19,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginBottom="15dp"
+        android:src="@drawable/planet_diqiu_activated"
         tools:srcCompat="@drawable/planet_diqiu_activated" />
 
 </LinearLayout>

@@ -1,6 +1,5 @@
 package com.android.app
 
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -35,12 +34,12 @@ class PlanetActivity : AppCompatActivity() {
 
     private fun initData() {
         val result = ArrayList<HomePlanetBean>()
-//        val moon = HomePlanetBean(
-//            "月球",
-//            R.drawable.planet_yueqiu_mormal,
-//            R.drawable.planet_yueqiu_activated,
-//            true
-//        )
+        val moon = HomePlanetBean(
+            "月球",
+            R.drawable.planet_yueqiu_mormal,
+            R.drawable.planet_yueqiu_activated,
+            true
+        )
         val shui = HomePlanetBean(
             "水星",
             R.drawable.planet_shuixing_normal,
@@ -90,7 +89,7 @@ class PlanetActivity : AppCompatActivity() {
             false
         )
 //        result.add(moon)
-        result.add(shui)
+//        result.add(shui)
         result.add(jin)
         result.add(earth)
         result.add(fire)
@@ -100,7 +99,9 @@ class PlanetActivity : AppCompatActivity() {
         result.add(ocean)
         val starGroupView = findViewById<PlanetGroupView>(R.id.starGroupView)
         for (i in result.indices) {
-            val child = PlanetView(result[i], this)
+            val child = PlanetView(this).apply {
+                setPlanetBean(result[i])
+            }
             starGroupView.addView(child, FrameLayout.LayoutParams(-2, -2))
         }
         starGroupView.requestLayout()

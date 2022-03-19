@@ -1,20 +1,21 @@
-package com.android.app.planet
+package com.android.app.view
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Camera
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
-import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import androidx.core.view.children
 import com.android.core.utils.dip
-import kotlin.math.PI
+import java.lang.Math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -29,15 +30,30 @@ private const val SCALE_PX_ANGLE = 0.2f
 /** 自动旋转角度，16ms（一帧）旋转的角度，值越大转的越快 */
 private const val AUTO_SWEEP_ANGLE = 0.1f
 
-/** 行星和太阳的父容器 */
-class PlanetGroupView : FrameLayout {
+/**
+ * 3d旋转点坐标计算公式:
+ * 1. 绕Z轴旋转a度
+ *    x1=x*cos（a）-y*sin（a）;
+ *    y1=y*cos（a）+x*sin（a）;
+ *    z1=z;
+ * 2. 绕X轴旋转a度
+ *    x1=x;
+ *    y1=y*cos（a）-z*sin（a）;
+ *    z1=z*cos（a）+y*sin（a）;
+ * 3. 绕Y轴旋转a度
+ *    x1=x*cos（a）-z*sin（a）;
+ *    y1=y;
+ *    z1=z*cos（a）+x*sin（a）;
+ *
+ * 椭圆公式：x^2/a^2 + y^2/b^2 = 1
+ */
+class OvalView : FrameLayout {
+    private val paint = Paint()
+    private val padding = dip(50)
+    private var ovalA = 0f
+    private var ovalB = 0f
 
-    /** 旋转的角度 */
-    private var sweepAngle = 0f
-    private var pathRadius = 0f
-
-    /** 容器距离左上右下的距离 */
-    private var padding: Int = context.dip(80)
+    private val startAngle = 270f
 
     /** 滑动结束后的动画 */
     private val velocityAnim = ValueAnimator()
@@ -45,17 +61,14 @@ class PlanetGroupView : FrameLayout {
     /** 手势处理 */
     private var downX = 0f
 
+    private var sweepAngle = 0f
+
     /** 手指按下时的角度 */
     private var downAngle = sweepAngle
 
     /** 速度追踪器 */
     private val velocity = VelocityTracker.obtain()
 
-    private val camera = Camera()
-
-    private var zSize = 0f
-
-    private val angle_of_rotation = 70f
 
     /** 自动滚动 */
     private val autoScrollRunnable = object : Runnable {
@@ -69,87 +82,66 @@ class PlanetGroupView : FrameLayout {
     }
 
     constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     )
 
     init {
+        // ViewGroup 需要主动开启 dispatchDraw() 以外的绘制
         setWillNotDraw(false)
         // 通过isChildDrawingOrderEnable 动态改变子View的绘制顺序
         isChildrenDrawingOrderEnabled = true
-
-        velocityAnim.apply {
-            this.duration = 1000
-            this.interpolator = DecelerateInterpolator()
-            this.addUpdateListener {
-                val value = it.animatedValue as Float
-                sweepAngle += (value * SCALE_PX_ANGLE) // 乘以SCALE_PX_ANGLE是因为如果不乘 转得太欢了
-                layoutChildren()
-            }
-        }
     }
 
-    override fun onLayout(b: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        pathRadius = (measuredWidth / 2 - padding).toFloat()
-        zSize = measuredHeight * cos(angle_of_rotation)
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        ovalA = (measuredWidth - padding - padding).toFloat() / 2
+        ovalB = (measuredHeight - padding - padding).toFloat() / 2
         layoutChildren()
-    }
-
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-
-        val centerX = measuredWidth / 2
-        val centerY = measuredHeight / 2
-
-        // 多个canvas的几何变换操作，是反着执行的，
-        // 即下面代码中会先执行translate(-centerX,-centerY)后执行translate(centerX,centerY)
-        canvas.save()
-        camera.save()
-        canvas.translate(centerX.toFloat(), centerY.toFloat())
-        camera.rotateX(70f)
-        camera.applyToCanvas(canvas)
-        camera.restore()
-        canvas.translate(-centerX.toFloat(), -centerY.toFloat())
-        canvas.restore()
     }
 
     private fun layoutChildren() {
         val childCount = childCount
         if (childCount == 0) return
+        val centerX = measuredWidth / 2
+        val centerY = measuredHeight / 2
         val averageAngle = 360f / childCount
-        // START_ANGLE° 开始画
+        val middle = childCount / 2f
         for (index in 0 until childCount) {
             val child = getChildAt(index)
             val childWidth = child.measuredWidth
             val childHeight = child.measuredHeight
 
-            // 弧度公式：1°=π/180°
-            val angle = (START_ANGLE - averageAngle * index + sweepAngle).toDouble() * PI / 180
+            val diff = index - middle
+            val proportion = (diff % middle) / middle
+
+            val du = startAngle + averageAngle * index + + sweepAngle - averageAngle * proportion
+            Log.e("jcy", "layoutChildren: index=$index diff=$diff proportion=$proportion du=$du")
+            val angle = du.toDouble() * PI / 180
             val sin = sin(angle)
             val cos = cos(angle)
-            val coordinateX = measuredWidth / 2 - pathRadius * cos
-            val coordinateY = measuredHeight / 2 - pathRadius * sin // sin(PI/9)表示x轴方向倾斜的角度
-
-            Log.e("jcy", "layoutChildren: angle=$angle sin=$sin cos=$cos")
+            val coordinateX = centerX + ovalA * cos
+            val coordinateY = centerY - ovalB * sin
 
             val x1 = (coordinateX - childWidth / 2).toInt()
             val y1 = (coordinateY - childHeight / 2).toInt()
             val x2 = (coordinateX + childWidth / 2).toInt()
             val y2 = (coordinateY + childHeight / 2).toInt()
-
             child.layout(x1, y1, x2, y2)
 
             // 缩放比例和角度的关系：保证270度时最大，90度时最小，并且最小为0.3，最大为1
             val scale = (1 - sin(angle)) / 2 + 0.3
-            child.scaleX = scale.toFloat() / 3
-            child.scaleY = scale.toFloat() / 3
+            child.scaleX = scale.toFloat()
+            child.scaleY = scale.toFloat()
         }
-//        rotationX = 70f
         changeZ()
-//        testWatchDrawOrder()
+    }
+
+    private fun getIndexAngle() {
+        val childCount = childCount
     }
 
     /**
@@ -166,6 +158,22 @@ class PlanetGroupView : FrameLayout {
     /** 根据Y轴缩放比，排序过后的子View */
     private fun getSortChildFromScaleY(): MutableList<View> {
         return children.sortedBy { it.scaleY }.toMutableList()
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        paint.isAntiAlias = true
+        paint.color = Color.RED
+        paint.style = Paint.Style.FILL
+        paint.strokeWidth = 10f
+        paint.style = Paint.Style.STROKE
+
+        val startX = padding.toFloat()
+        val startY = padding.toFloat()
+        val endX = (measuredWidth - padding).toFloat()
+        val endY = (measuredHeight - padding).toFloat()
+
+        canvas?.drawOval(startX, startY, endX, endY, paint)
+        super.onDraw(canvas)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -199,12 +207,5 @@ class PlanetGroupView : FrameLayout {
         super.onDetachedFromWindow()
         velocity.recycle()
         removeCallbacks(autoScrollRunnable)
-    }
-
-    private fun testWatchDrawOrder() {
-        getSortChildFromScaleY().forEach {
-            it.scaleX = 1f
-            it.scaleY = 1f
-        }
     }
 }
