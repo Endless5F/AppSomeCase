@@ -9,9 +9,6 @@ class PlanetItem {
     /** 当前位置位置 */
     var currentIndex = 0
 
-    /** 横向第多少对星球(由下向上) */
-    var duiIndex = 0
-
     /** 当前星球角度 */
     var currentAngle = 0f
 
@@ -21,6 +18,9 @@ class PlanetItem {
     /** 下一个星球角度 */
     var nextAngle = 0f
 
+    /** 临时星球角度量，用于随手势滑动 */
+    var tempAngle = 0f
+
     /** 星球名称 */
     var name: String? = null
 
@@ -28,10 +28,9 @@ class PlanetItem {
     @DrawableRes
     var planetImage: Int = -1
 
-    constructor(originalIndex: Int, duiIndex: Int, name: String?, @DrawableRes planetImage: Int) {
+    constructor(originalIndex: Int, name: String?, @DrawableRes planetImage: Int) {
         this.originalIndex = originalIndex
         this.currentIndex = originalIndex
-        this.duiIndex = duiIndex
         this.name = name
         this.planetImage = planetImage
     }
