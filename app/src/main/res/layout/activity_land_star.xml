@@ -3,22 +3,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="#000000"
     tools:context=".PlanetActivity">
 
-    <com.android.app.planet.PlanetGroupView
+    <com.android.app.planetview.StarGroupView
         android:id="@+id/starGroupView"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:layout_height="360dp">
 
-<!--        <com.android.app.planetview.SunView-->
-<!--            android:tag="center"-->
-<!--            android:scaleX="1.2"-->
-<!--            android:scaleY="1.2"-->
-<!--            android:translationY="-40dp"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"/>-->
+        <com.android.app.planetview.SunView
+            android:tag="center"
+            android:scaleX="1.2"
+            android:scaleY="1.2"
+            android:translationY="-40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-    </com.android.app.planet.PlanetGroupView>
+    </com.android.app.planetview.StarGroupView>
+
+    <com.android.app.view.OvalMenuLayout
+        android:id="@+id/id_menulayout"
+        android:layout_width="400dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="400dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_centerInParent="true"
+        android:clipChildren="false"
+        >
+    </com.android.app.view.OvalMenuLayout>
 
 </FrameLayout>

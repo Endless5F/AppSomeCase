@@ -4,19 +4,33 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.app.planet.PlanetGroupView
-import com.android.app.planet.PlanetView
 import com.android.app.planetview.HomePlanetBean
+import com.android.app.planetview.StarChildView
+import com.android.app.planetview.StarGroupView
+import com.android.app.view.OvalMenuAdapter
+import com.android.app.view.OvalMenuLayout
+import com.android.core.utils.dip
+
 
 /**
  * @author guolong
  * @since 2019/8/21
  *
- *
  * https://www.jianshu.com/p/2954f2ef8ea5
  */
 class PlanetActivity : AppCompatActivity() {
+    private val imageIds = intArrayOf(
+        R.drawable.planet_yueqiu_mormal,
+        R.drawable.planet_shuixing_normal,
+        R.drawable.planet_jinxing_normal,
+        R.drawable.planet_diqiu_normal,
+        R.drawable.planet_huoxing_normal,
+        R.drawable.planet_muxing_normal,
+        R.drawable.planet_tuxing_normal
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val isDemo = intent.getBooleanExtra("isDemo", true)
@@ -28,6 +42,13 @@ class PlanetActivity : AppCompatActivity() {
         } else {
             setContentView(R.layout.activity_land_star)
             initData()
+
+            val mOvalMenuLayout = findViewById<OvalMenuLayout>(R.id.id_menulayout)
+            val menuAdapter = OvalMenuAdapter(imageIds)
+            menuAdapter.setOnItemClickListener { _, position ->
+                Toast.makeText(this, imageIds.get(position), Toast.LENGTH_LONG).show()
+            }
+            mOvalMenuLayout.setMenuAdapter(menuAdapter)
 //            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
     }
@@ -88,8 +109,8 @@ class PlanetActivity : AppCompatActivity() {
             R.drawable.planet_haiwagnxing_activated,
             false
         )
-//        result.add(moon)
-//        result.add(shui)
+        result.add(moon)
+        result.add(shui)
         result.add(jin)
         result.add(earth)
         result.add(fire)
@@ -97,12 +118,10 @@ class PlanetActivity : AppCompatActivity() {
         result.add(soil)
         result.add(gold)
         result.add(ocean)
-        val starGroupView = findViewById<PlanetGroupView>(R.id.starGroupView)
+        val starGroupView = findViewById<StarGroupView>(R.id.starGroupView)
         for (i in result.indices) {
-            val child = PlanetView(this).apply {
-                setPlanetBean(result[i])
-            }
-            starGroupView.addView(child, FrameLayout.LayoutParams(-2, -2))
+            val child = StarChildView(result[i],this)
+            starGroupView.addView(child, FrameLayout.LayoutParams(dip(100), dip(100)))
         }
         starGroupView.requestLayout()
     }
