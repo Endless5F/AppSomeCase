@@ -3,6 +3,7 @@ package com.android.app.custom
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -13,7 +14,6 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
-import com.android.app.R
 import com.android.core.utils.dip
 import kotlin.math.PI
 import kotlin.math.abs
@@ -34,9 +34,9 @@ private const val ANIM_DIRECTION_RIGHT = 1
  * ios 方案：
  * CATransform3D：https://www.kancloud.cn/manual/ios/97786
  * CATransformLayer：https://www.kancloud.cn/manual/ios/97792
- * 缺点：点击事件有问题
+ * 缺点：点击事件有问题(需动态计算)
  */
-class CustomPlanetGroup : FrameLayout {
+class StarGroupView : FrameLayout {
     private var centerX = 0
     private var centerY = 0
 
@@ -47,13 +47,10 @@ class CustomPlanetGroup : FrameLayout {
     private val startAngle = 270f
 
     /** 平面正圆绕x轴旋转的角度，控制远近效果 */
-    private val rotateAngela = 50f
-
-    /** 每个星球平均的角度 */
-    private var averageAngle = 0f
+    private val rotateAngela = 60f
 
     /** 相机(用户视角)距离 */
-    private val cameraDistance = dip(150)
+    private val cameraDistance = dip(130)
 
     /** 椭圆X轴半径 */
     private var ovalXRadius = 0f
@@ -66,10 +63,21 @@ class CustomPlanetGroup : FrameLayout {
     private val bottomPadding = dip(0)
 
     /** 数据源 */
-    private val dataArray = arrayListOf<PlanetItem>()
+    private val dataArray = arrayListOf<StarItemModel>()
+
+    /** 当前选中位置(以数据源中index为主) */
+    private var currentSelected = 0
+
+    /** 本地切换动画切换次数 */
+    private var currentToggleNum = 1
 
     /** 是否允许滑动 */
-    private var swipeEnable = true
+    private var swipeEnable = false
+
+    /** 随手滑动动画方向，是否向右滑动 */
+    private var isSwipeRight = false
+
+    /** 动画是否正在执行 */
     private var isAnimRunning = false
 
     /** 动画方向 */
@@ -93,15 +101,13 @@ class CustomPlanetGroup : FrameLayout {
                 override fun onAnimationEnd(animation: Animator?) {
                     changeItemIndex()
                     changeItemsAngle()
+                    changeItemSelect()
                     isAnimRunning = false
                     animDirection = ANIM_DIRECTION_NONE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {
-                    changeItemIndex()
-                    changeItemsAngle()
-                    isAnimRunning = false
-                    animDirection = ANIM_DIRECTION_NONE
+
                 }
 
                 override fun onAnimationRepeat(animation: Animator?) {
@@ -124,17 +130,32 @@ class CustomPlanetGroup : FrameLayout {
     init {
         setWillNotDraw(false)
 
-        dataArray.add(PlanetItem(0, "地球", R.drawable.planet_diqiu_activated))
-        dataArray.add(PlanetItem(1, "水星", R.drawable.planet_shuixing_activated))
-        dataArray.add(PlanetItem(2, "金星", R.drawable.planet_jinxing_activated))
-        dataArray.add(PlanetItem(3, "火星", R.drawable.planet_huoxing_normal))
-        dataArray.add(PlanetItem(4, "土星", R.drawable.planet_tuxing_activated))
-        dataArray.add(PlanetItem(5, "木星", R.drawable.planet_tianwangxing_normal))
-        dataArray.add(PlanetItem(6, "海王星", R.drawable.planet_haiwagnxing_activated))
+        // 初始化数据
+        initData(arrayListOf())
+    }
+
+    fun initData(data: List<StarItemModel>) {
+        dataArray.add(StarItemModel("国潮星"))
+        dataArray.add(StarItemModel("冲浪星"))
+        dataArray.add(StarItemModel("吐槽星"))
+        dataArray.add(StarItemModel("漫画星"))
+        dataArray.add(StarItemModel("小说星"))
+        dataArray.add(StarItemModel("游戏星"))
+        dataArray.add(StarItemModel("潮玩星"))
+
+        currentSelected = 0
+        dataArray[0].isSelected = true
 
         for (i in dataArray.indices) {
-            val child = CustomPlanetView(context).apply {
-                setPlanetBean(dataArray[i])
+            val item = dataArray[i]
+            item.initIndex(i)
+            val child = StarItemView(context).apply {
+                setPlanetBean(item)
+                clickListener = { isSelected, currentIndex ->
+                    if (!isSelected) {
+                        executeToggleTransitionAnimation(currentIndex)
+                    }
+                }
             }
             addView(child, LayoutParams(dip(80), dip(80)))
         }
@@ -142,17 +163,11 @@ class CustomPlanetGroup : FrameLayout {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(
-            measuredWidth,
-            (measuredWidth * cos(rotateAngela * PI / 180) + bottomPadding).toInt()
-        )
-
         ovalXRadius = (measuredWidth - padding * 2).toFloat() / 2
-        ovalYRadius = (measuredHeight - padding * 2).toFloat() / 2
-
+        ovalYRadius = (ovalXRadius * cos(rotateAngela * PI / 180)).toFloat()
         swipeToggleDistance = ovalXRadius
 
-        Log.e("jcy", "onMeasure: ovalXRadius=$ovalXRadius ovalYRadius=$ovalYRadius")
+        setMeasuredDimension(measuredWidth, (ovalYRadius * 2 + padding * 2).toInt())
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -160,11 +175,16 @@ class CustomPlanetGroup : FrameLayout {
         centerX = measuredWidth / 2
         centerY = measuredHeight / 2
 
-        averageAngle = 360f / childCount
-        changeItemsAngle()
+        // 计算各个星球位置对应角度
+        StarItemModel.calculateAngleArray(startAngle, dataArray.size) { index, average ->
+            val currentAngle = getCurrentItemAngle(index, average)
+            dataArray[index].currentAngle = currentAngle
+            currentAngle
+        }
 
         for (index in 0 until childCount) {
             layoutItemChildren(index)
+            Log.e("jcy", "onLayout: ${dataArray[index].currentAngle}")
         }
     }
 
@@ -216,9 +236,6 @@ class CustomPlanetGroup : FrameLayout {
     /** 手势处理 */
     private var downX = 0f
 
-    /** 随手滑动动画方向，是否向右滑动 */
-    private var isSwipeRight = false
-
     /** 随手滑动动画进度 */
     private var swipeProgress = 0f
     private var lastSwipeProgress = 0f
@@ -241,9 +258,9 @@ class CustomPlanetGroup : FrameLayout {
             MotionEvent.ACTION_UP -> {
                 val dx = downX - x
                 isSwipeRight = dx <= 0
-                if (abs(dx) > touchSlop || swipeEnable) {
+                if (abs(dx) > touchSlop || lastSwipeProgress != 0f) {
                     // 执行切换动画
-                    executeToggleTransitionAnimation()
+                    executeToggleTransitionAnimation(1)
                 }
             }
         }
@@ -256,18 +273,10 @@ class CustomPlanetGroup : FrameLayout {
         dataArray.forEach {
             when (animDirection) {
                 ANIM_DIRECTION_RIGHT -> {
-                    if (it.currentIndex == dataArray.size - 1) {
-                        it.currentIndex = 0
-                    } else {
-                        it.currentIndex += 1
-                    }
+                    it.resetCurrentIndex(currentToggleNum)
                 }
                 ANIM_DIRECTION_LEFT -> {
-                    if (it.currentIndex == 0) {
-                        it.currentIndex = dataArray.size - 1
-                    } else {
-                        it.currentIndex -= 1
-                    }
+                    it.resetCurrentIndex(-currentToggleNum)
                 }
                 else -> {}
             }
@@ -277,27 +286,28 @@ class CustomPlanetGroup : FrameLayout {
     /** 改变所有星球的角度 */
     private fun changeItemsAngle() {
         dataArray.forEach {
-            it.currentAngle = getCurrentItemAngle(it.currentIndex)
-            it.tempAngle = it.currentAngle
-            val nextIndex = when (it.currentIndex) {
-                dataArray.size - 1 -> 0
-                else -> it.currentIndex + 1
+            it.currentAngle = it.currentAngle()
+        }
+    }
+
+    /** 改变所有星球的选中态 */
+    private fun changeItemSelect() {
+        dataArray.forEachIndexed { index, model ->
+            val isSelected = model.currentAngle == startAngle
+            if (isSelected) {
+                currentSelected = index
             }
-            it.nextAngle = getCurrentItemAngle(nextIndex)
-            val previousIndex = when (it.currentIndex) {
-                0 -> dataArray.size - 1
-                else -> it.currentIndex - 1
-            }
-            it.previousAngle = getCurrentItemAngle(previousIndex)
+            model.isSelected = isSelected
+            getChildAt(model.originalIndex).isSelected = isSelected
         }
     }
 
     /** 获取当前星球角度 */
-    private fun getCurrentItemAngle(index: Int): Float {
-        val angle = (startAngle + averageAngle * index) % 360
+    private fun getCurrentItemAngle(index: Int, average: Float): Float {
+        val angle = (startAngle + average * index) % 360f
         // 角度缩放比
         val scale = ovalYRadius * cos(angle * PI / 180) / cameraDistance
-        val scaleAngle = averageAngle * scale.toFloat()
+        val scaleAngle = average * scale.toFloat()
         // 二、三象限角度减小；一、四象限角度增大
         return if (angle == 90f || angle == 270f) angle else angle + scaleAngle
     }
@@ -323,19 +333,19 @@ class CustomPlanetGroup : FrameLayout {
         lastSwipeProgress = toProgress
         initTransitionAnimList()
         dataArray.forEach { item ->
-            var fromAngle = item.tempAngle
+            var fromAngle = item.currentAngle()
             val endAngle: Float
             val toAngle = if (isSwipeRight) {
                 // 右滑：current --> next (小 --> 大)
-                endAngle =
-                    if (fromAngle > item.nextAngle) item.nextAngle + 360f else item.nextAngle
+                val nextAngle = item.nextAngle(1)
+                endAngle = if (fromAngle > nextAngle) nextAngle + 360f else nextAngle
                 fromAngle += (endAngle - fromAngle) * fromProgress
                 val toAngle = (endAngle - fromAngle) * toProgress + fromAngle
                 toAngle
             } else {
                 // 左滑：current --> previous (大 --> 小)
-                endAngle =
-                    if (fromAngle < item.previousAngle) item.previousAngle - 360f else item.previousAngle
+                val previousAngle = item.previousAngle(1)
+                endAngle = if (fromAngle < previousAngle) previousAngle - 360f else previousAngle
                 fromAngle -= (fromAngle - endAngle) * fromProgress
                 val toAngle = fromAngle - (fromAngle - endAngle) * toProgress
                 toAngle
@@ -345,11 +355,13 @@ class CustomPlanetGroup : FrameLayout {
         }
     }
 
-    /** 执行切换动画 */
-    private fun executeToggleTransitionAnimation() {
-        // 滑动动画 需要实时更新
-        animSet.cancel()
-        lastSwipeProgress = 1f
+    /**
+     * 执行切换动画
+     * @param count 切换个数
+     */
+    private fun executeToggleTransitionAnimation(count: Int) {
+        if (isAnimRunning) return
+        currentToggleNum = count
         initTransitionAnimList()
         animDirection = if (isSwipeRight) ANIM_DIRECTION_RIGHT else ANIM_DIRECTION_LEFT
         var build: AnimatorSet.Builder? = null
@@ -357,10 +369,12 @@ class CustomPlanetGroup : FrameLayout {
             val fromAngle = item.currentAngle
             val toAngle = if (isSwipeRight) {
                 // 右滑：current --> next (小 --> 大)
-                if (fromAngle > item.nextAngle) item.nextAngle + 360f else item.nextAngle
+                val nextAngle = item.nextAngle(count)
+                if (fromAngle > nextAngle) nextAngle + 360f else nextAngle
             } else {
                 // 左滑：current --> previous (大 --> 小)
-                if (fromAngle < item.previousAngle) item.previousAngle - 360f else item.previousAngle
+                val previousAngle = item.previousAngle(count)
+                if (fromAngle < previousAngle) previousAngle - 360f else previousAngle
             }
             val animItemIndex = item.originalIndex
             transitionAnimList[animItemIndex].setFloatValues(fromAngle, toAngle)
@@ -393,4 +407,3 @@ class CustomPlanetGroup : FrameLayout {
         }
     }
 }
-

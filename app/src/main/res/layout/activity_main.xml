@@ -3,7 +3,6 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_00a"
     android:orientation="vertical">
 
     <!--    <com.android.core.widget.multiimage.RecMultiImageLayout-->
@@ -28,7 +27,7 @@
         android:layout_marginEnd="8dp"
         android:text="星球" />
 
-    <com.android.app.custom.CustomPlanetGroup
+    <com.android.app.custom.StarGroupView
         android:id="@+id/planet_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
