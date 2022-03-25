@@ -1,12 +1,15 @@
 package com.android.app.custom
 
-import android.util.Log
+import androidx.annotation.DrawableRes
 
-class StarItemModel(val name: String? = null) {
+class StarItemModel(val name: String? = null, @DrawableRes val icon: Int) {
 
     companion object {
         val angleArray = arrayListOf<Float>()
+        var firstNextAngle: Float = 0f
+        var firstPreviousAngle: Float = 0f
 
+        /** 计算每个星球静置时的角度 */
         fun calculateAngleArray(
             startAngle: Float,
             count: Int,
@@ -17,14 +20,22 @@ class StarItemModel(val name: String? = null) {
             val averageAngle = 360f / count
             if (rule != null) {
                 for (i in 0 until count) {
-                    Log.e("jcy", "calculateAngleArray: ${rule.invoke(i, averageAngle)}")
                     angleArray.add(rule.invoke(i, averageAngle))
                 }
             } else {
                 for (i in 0 until count) {
-                    angleArray.add((startAngle + averageAngle * i) % 360f)
+                    angleArray.add((startAngle + averageAngle * i) % 360)
                 }
             }
+            firstNextAngle = angleArray[1]
+            firstPreviousAngle = angleArray[angleArray.size - 1]
+        }
+
+        /** 当前角度是否属于选中(最近)星球的左右范围(index == 0 上一个--下一个之间) */
+        fun isSelectAngleRange(angle: Float): Boolean {
+            if (angleArray.isEmpty()) return false
+            return angle in (firstPreviousAngle)..(firstNextAngle)
+//            return angle in (firstPreviousAngle + 0.00005)..(firstNextAngle - 0.00005)
         }
     }
 

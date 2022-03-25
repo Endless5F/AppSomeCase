@@ -38,19 +38,18 @@ class StarItemView : FrameLayout {
         planetBean.let {
             nameView?.text = it.name
             isSelected = it.isSelected
+            iconView?.setImageResource(planetBean.icon)
         }
     }
 
-    /** 设置是否选中 */
-    override fun setSelected(selected: Boolean) {
-        super.setSelected(selected)
-        if (selected) {
-            nameView?.visibility = INVISIBLE
-            iconView?.setImageResource(R.drawable.planet_select)
-        } else {
-            nameView?.visibility = VISIBLE
-            iconView?.setImageResource(R.drawable.planet_unselect)
-        }
+    override fun setScaleX(scaleX: Float) {
+        super.setScaleX(scaleX)
+        nameView?.scaleX = 1f / 2
+    }
+
+    override fun setScaleY(scaleY: Float) {
+        super.setScaleY(scaleY)
+        nameView?.scaleY = 1f / 2
     }
 
     override fun toString(): String {

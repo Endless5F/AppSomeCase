@@ -3,6 +3,8 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/planet_background"
+    android:clipChildren="false"
     android:orientation="vertical">
 
     <!--    <com.android.core.widget.multiimage.RecMultiImageLayout-->
@@ -30,6 +32,6 @@
     <com.android.app.custom.StarGroupView
         android:id="@+id/planet_group"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
