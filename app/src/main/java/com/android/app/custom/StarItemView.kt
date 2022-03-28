@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import com.android.app.R
 import android.widget.ImageView
 import android.widget.TextView
-import com.android.app.R
 
 class StarItemView : FrameLayout {
     private var nameView: TextView? = null
@@ -40,6 +40,10 @@ class StarItemView : FrameLayout {
             isSelected = it.isSelected
             iconView?.setImageResource(planetBean.icon)
         }
+    }
+
+    fun setNameAlpha(alpha: Float) {
+        nameView?.alpha = alpha
     }
 
     override fun setScaleX(scaleX: Float) {

@@ -35,9 +35,11 @@ private const val ANIM_DIRECTION_RIGHT = 1
  * 4. 点击星球多个切换过渡动画逻辑
  * 5. 抽取每个星球静置状态下固定角度集
  * 6. 单独处理选中(最前方)星球单独缩放规则(选中星球最大)
- * 7. 点击切换和触摸抬起切换 事件冲突问题处理？
+ * 7. 点击切换和触摸抬起切换 事件冲突问题处理
  * 8. 星球字体渐变色处理？
- * 9. 选中星球文本隐藏？
+ * 9. 选中星球文本隐藏
+ *
+ * 注：子View 尽量不要使用View.GONE等导致父View重新测量和布局的属性，由于动画是在layout布局中实现，会导致动画reset。
  *
  * ios 方案：
  * CATransform3D：https://www.kancloud.cn/manual/ios/97786
@@ -54,7 +56,7 @@ class StarGroupView : FrameLayout {
     /** 开始绘制的角度 */
     private val startAngle = 270f
     /** 开始位置放大比例 */
-    private val startScala = 2f
+    private val startScala = 2.5f
 
     /** 平面正圆绕x轴旋转的角度，控制远近效果 */
     private val rotateAngela = 60f
@@ -225,19 +227,10 @@ class StarGroupView : FrameLayout {
         val y2 = (coordinateY + childHeight / 2).toInt()
         child.layout(x1, y1, x2, y2)
 
-        val scale = calculateScale(angle)
-
-        child.scaleX = scale
-        child.scaleY = scale
-    }
-
-    /** 计算缩放比例 */
-    private fun calculateScale(angle: Float): Float {
+        /* 计算缩放比例 */
         val angleAbs = (angle + 360) % 360
-        Log.e("jcy", "calculateScale: angle=$angle angleAbs=$angleAbs")
-        val radian = angle.toDouble() * PI / 180
         val isRange = StarItemModel.isSelectAngleRange(angleAbs)
-        return if (isRange) {
+        val scale = if (isRange) {
             calculateSelectScaleRule(angleAbs)
         } else {
             // 缩放比例和角度的关系：保证270度时最大，90度时最小，并且最小为0.3，最大为1
@@ -246,6 +239,12 @@ class StarGroupView : FrameLayout {
             // 缩放比例 = (相机(用户视角)距离-绕x轴旋转距离) / 相机(用户视角)距离
             (((cameraDistance - ovalYRadius * sin(radian)) / cameraDistance)).toFloat()
         }
+        if (child is StarItemView) {
+            child.setNameAlpha(if (isRange) calculateSelectItemProportion(angleAbs) else 1f)
+        }
+
+        child.scaleX = scale
+        child.scaleY = scale
     }
 
     /** 计算选中(最前方)星球单独缩放规则 */
@@ -258,8 +257,14 @@ class StarGroupView : FrameLayout {
             (((cameraDistance - ovalYRadius * sin(firstRadian)) / cameraDistance) * startScala).toFloat()
         val firstNextScala =
             (((cameraDistance - ovalYRadius * sin(firstNextRadian)) / cameraDistance)).toFloat()
-        Log.e("jcy", "calculateSelectScaleRule: diff=$diff ${firstNextAngle - startAngle}")
         return (1 - abs(diff) / (abs(firstNextAngle - startAngle))) * (firstScala - firstNextScala) + firstNextScala
+    }
+
+    /** 计算选中(最前方)星球当前角度比例 */
+    private fun calculateSelectItemProportion(angle: Float): Float {
+        val diff = angle - startAngle
+        val firstNextAngle = StarItemModel.firstNextAngle
+        return abs(diff) / (abs(firstNextAngle - startAngle))
     }
 
 //    override fun onDraw(canvas: Canvas) {
@@ -282,17 +287,16 @@ class StarGroupView : FrameLayout {
 
     /** 手势处理 */
     private var downX = 0f
-
     /** 随手滑动动画进度 */
     private var swipeProgress = 0f
     private var lastSwipeProgress = 0f
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         val x = event?.x ?: 0f
+        Log.e("jcy", "dispatchTouchEvent: action=${event?.action} x=$x")
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 downX = x
                 resetSwipeProgress()
-                return true
             }
             MotionEvent.ACTION_MOVE -> {
                 val dx = downX - x
@@ -301,14 +305,28 @@ class StarGroupView : FrameLayout {
                     swipeDirectionAndProgress(dx)
                     executeSwipeTransitionAnimation()
                 }
+                if (abs(dx) > touchSlop) {
+                    // 产生滑动，则拦截事件，防止触发子item的点击事件
+                    return true
+                }
             }
             MotionEvent.ACTION_UP -> {
                 val dx = downX - x
-                isSwipeRight = dx <= 0
                 if (abs(dx) > touchSlop || lastSwipeProgress != 0f) {
+                    isSwipeRight = dx <= 0
                     // 执行切换动画
                     executeToggleTransitionAnimation(1)
                 }
+            }
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                // 保证空白(非星球)区域可滑动切换星球
+                return true
             }
         }
         return super.onTouchEvent(event)
@@ -378,7 +396,6 @@ class StarGroupView : FrameLayout {
         val fromProgress = lastSwipeProgress
         val toProgress = swipeProgress
         lastSwipeProgress = toProgress
-        initTransitionAnimList()
         dataArray.forEach { item ->
             var fromAngle = item.currentAngle()
             val endAngle: Float
