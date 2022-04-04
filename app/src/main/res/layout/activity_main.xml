@@ -29,8 +29,9 @@
         android:layout_marginEnd="8dp"
         android:text="星球" />
 
-    <com.android.app.custom.StarGroupView
-        android:id="@+id/planet_group"
+    <com.android.app.planettab.PlanetTabView
+        android:id="@+id/planet_tab"
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

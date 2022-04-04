@@ -14,10 +14,18 @@
 
     <ImageView
         android:id="@+id/planet_icon"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="3dp"
+        android:layout_width="@dimen/planet_width"
+        android:layout_height="@dimen/planet_height"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/planet_unselect" />
+        android:layout_marginTop="@dimen/planet_top_space"
+        android:src="@drawable/planet_default_star" />
+
+    <ImageView
+        android:id="@+id/planet_icon_select"
+        android:layout_width="@dimen/planet_width"
+        android:layout_height="@dimen/planet_height"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/planet_top_space"
+        android:src="@drawable/planet_default_star" />
 
 </FrameLayout>

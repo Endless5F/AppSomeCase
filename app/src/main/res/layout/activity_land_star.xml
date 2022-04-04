@@ -25,16 +25,4 @@
 
     </com.android.app.planetview.StarGroupView>
 
-    <com.android.app.view.OvalMenuLayout
-        android:id="@+id/id_menulayout"
-        android:layout_width="400dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="400dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_centerInParent="true"
-        android:clipChildren="false"
-        >
-    </com.android.app.view.OvalMenuLayout>
-
 </FrameLayout>

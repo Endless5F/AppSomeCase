@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.android.app.planettab.PlanetTabView
+import com.android.app.planettab.initData
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +36,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, PlanetActivity::class.java).apply{
                 putExtra("isDemo",false)
             })
+        }
+        findViewById<PlanetTabView>(R.id.planet_tab)?.let {
+            it.initPlanetListData(initData())
         }
     }
 }

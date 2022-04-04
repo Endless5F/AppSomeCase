@@ -4,13 +4,10 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.app.planetview.HomePlanetBean
 import com.android.app.planetview.StarChildView
 import com.android.app.planetview.StarGroupView
-import com.android.app.view.OvalMenuAdapter
-import com.android.app.view.OvalMenuLayout
 import com.android.core.utils.dip
 
 
@@ -42,13 +39,6 @@ class PlanetActivity : AppCompatActivity() {
         } else {
             setContentView(R.layout.activity_land_star)
             initData()
-
-            val mOvalMenuLayout = findViewById<OvalMenuLayout>(R.id.id_menulayout)
-            val menuAdapter = OvalMenuAdapter(imageIds)
-            menuAdapter.setOnItemClickListener { _, position ->
-                Toast.makeText(this, imageIds.get(position), Toast.LENGTH_LONG).show()
-            }
-            mOvalMenuLayout.setMenuAdapter(menuAdapter)
 //            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         }
     }

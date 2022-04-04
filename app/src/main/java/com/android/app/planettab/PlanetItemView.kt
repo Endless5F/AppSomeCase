@@ -1,19 +1,25 @@
-package com.android.app.custom
+package com.android.app.planettab
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import com.android.app.R
 import android.widget.ImageView
 import android.widget.TextView
+import com.android.app.R
 
-class StarItemView : FrameLayout {
+/**
+ * @author jiaochengyun@baidu.com
+ * @since 3.0.0
+ */
+class PlanetItemView : FrameLayout {
     private var nameView: TextView? = null
     private var iconView: ImageView? = null
-    private var planetBean: StarItemModel? = null
+    private var iconSelectView: ImageView? = null
+    private var planetBean: PlanetItemData? = null
 
-    var clickListener: ((isSelected: Boolean, currentIndex: Int) -> Unit)? = null
+    var clickListener: ((PlanetItemData?) -> Unit)? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -27,23 +33,31 @@ class StarItemView : FrameLayout {
         LayoutInflater.from(context).inflate(R.layout.layout_planet_view, this)
         nameView = findViewById(R.id.planet_name)
         iconView = findViewById(R.id.planet_icon)
+        iconSelectView = findViewById(R.id.planet_icon_select)
 
         setOnClickListener {
-            clickListener?.invoke(planetBean?.isSelected ?: false, planetBean?.currentIndex ?: 0)
+            clickListener?.invoke(planetBean)
         }
     }
 
-    fun setPlanetBean(planetBean: StarItemModel) {
+    fun setPlanetBean(planetBean: PlanetItemData) {
         this.planetBean = planetBean
         planetBean.let {
             nameView?.text = it.name
-            isSelected = it.isSelected
-            iconView?.setImageResource(planetBean.icon)
+            iconView?.setImageResource(it.picture)
+            iconSelectView?.alpha = 0f
+            iconSelectView?.setImageResource(it.pictureSelect)
         }
     }
 
-    fun setNameAlpha(alpha: Float) {
-        nameView?.alpha = alpha
+    fun setNameAlpha(alpha: Float, yuzhi: Float) {
+        // 2倍速渐变：1f - (1f - alpha) * 2，(1f - alpha) * 2 属于0..1f
+        val diff2x = (1f - alpha) * 2
+        val alpha2x = 1f - if (diff2x < 0) 0f else if (diff2x > 1f) 1f else diff2x
+
+        nameView?.alpha = alpha2x * yuzhi
+        iconView?.alpha = alpha2x * yuzhi
+        iconSelectView?.alpha = (1f - alpha) * yuzhi
     }
 
     override fun setScaleX(scaleX: Float) {
