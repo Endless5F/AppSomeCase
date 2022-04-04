@@ -50,14 +50,14 @@ class PlanetItemView : FrameLayout {
         }
     }
 
-    fun setNameAlpha(alpha: Float, yuzhi: Float) {
+    fun setNameAlpha(alpha: Float, threshold: Float) {
         // 2倍速渐变：1f - (1f - alpha) * 2，(1f - alpha) * 2 属于0..1f
         val diff2x = (1f - alpha) * 2
         val alpha2x = 1f - if (diff2x < 0) 0f else if (diff2x > 1f) 1f else diff2x
 
-        nameView?.alpha = alpha2x * yuzhi
-        iconView?.alpha = alpha2x * yuzhi
-        iconSelectView?.alpha = (1f - alpha) * yuzhi
+        nameView?.alpha = alpha2x
+        iconView?.alpha = alpha2x
+        iconSelectView?.alpha = 1f - alpha
     }
 
     override fun setScaleX(scaleX: Float) {
