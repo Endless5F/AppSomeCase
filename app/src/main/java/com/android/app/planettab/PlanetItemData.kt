@@ -12,6 +12,7 @@ class PlanetItemData(
     val name: String? = null,
     val topicId: String? = null,
     @DrawableRes val picture: Int = R.drawable.planet_default_star,
+    val afxPlayPath: String = "",
     @DrawableRes val pictureSelect: Int = R.drawable.icon_planet_selected
 ) {
 
