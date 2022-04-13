@@ -23,8 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".PlanetActivity"
-            android:theme="@style/LandTheme" />
+        <activity android:name=".PlanetActivity" android:theme="@style/LandTheme" />
     </application>
 
 </manifest>
