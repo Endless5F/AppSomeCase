@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/drawable/ic_animated_vector_center_icon.xml" value="0.41354166666666664" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.24270833333333333" />
         <entry key="app/src/main/res/drawable/progressbar_h_shape1.xml" value="0.2525" />
+        <entry key="app/src/main/res/layout/activity_demo.xml" value="0.2866847826086957" />
         <entry key="app/src/main/res/layout/activity_land.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/activity_land_star.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.19326241134751773" />
@@ -19,9 +20,11 @@
         <entry key="app/src/main/res/layout/fragment_center.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/fragment_component.xml" value="0.286231884057971" />
         <entry key="app/src/main/res/layout/fragment_layout.xml" value="0.26856884057971014" />
+        <entry key="app/src/main/res/layout/layout_header.xml" value="0.2866847826086957" />
         <entry key="app/src/main/res/layout/layout_planet_view.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/layout_star_child.xml" value="0.2753623188405797" />
         <entry key="app/src/main/res/layout/layout_sun_view.xml" value="0.2753623188405797" />
+        <entry key="app/src/main/res/layout/list_item.xml" value="0.2866847826086957" />
       </map>
     </option>
   </component>

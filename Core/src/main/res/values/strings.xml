@@ -8,4 +8,7 @@
     <string name="list_empty_action">刷新一把</string>
     <string name="footer_loading_text">正在加载...</string>
     <string name="city_selector_tab_hint">请选择</string>
+
+    <string name="indicator_color_error">指示器的颜色只能设置成“@color/colorID or #000000”</string>
+    <string name="banner_adapter_null_error">Adapter为空！请检查下参数</string>
 </resources>
