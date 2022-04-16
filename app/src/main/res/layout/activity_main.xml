@@ -31,13 +31,19 @@
 
     <com.android.app.planettab.PlanetTabView
         android:id="@+id/planet_tab"
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
 
-    <com.android.core.widget.banner2.Banner
-        android:id="@+id/banner"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp2"
         android:layout_width="match_parent"
-        android:layout_height="110dp" />
+        android:layout_height="110dp"
+        android:clipToPadding="false" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"/>
 
 </LinearLayout>
