@@ -7,6 +7,17 @@ import kotlin.math.abs
 /**
  * 弹幕泳道 LayoutManager
  * https://juejin.cn/post/7010521583894659103
+ *
+ * demo：
+ * findViewById<RecyclerView>(R.id.rv)?.let { rv ->
+ *     rv.adapter = LaneAdapter()
+ *     rv.layoutManager = LaneLayoutManager()
+
+ *     countdown(Long.MAX_VALUE, 100) {
+ *         // 120 > 100 ,  防止动画执行完下一帧滚动尚未调用导致些许卡顿
+ *         rv.smoothScrollBy(dip(10), 0, LinearInterpolator(), 120)
+ *     }.launchIn(MainScope())
+ * }
  */
 class LaneLayoutManager : RecyclerView.LayoutManager() {
     /**
@@ -51,7 +62,8 @@ class LaneLayoutManager : RecyclerView.LayoutManager() {
      * define how to layout child view in RecyclerView
      * override this is a must for customized [RecyclerView.LayoutManager]
      */
-    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
+        detachAndScrapAttachedViews(recycler)
         fillLanes(recycler, lanes)
     }
 

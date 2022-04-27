@@ -132,6 +132,18 @@ class PlanetTabView : FrameLayout {
     /** 切换Tab 回调 */
     var switchTabCallback: ((PlanetItemData, direction: Int) -> Unit)? = null
 
+    /** 此TabView屏幕中的位置 */
+    private val planetTabViewGlobalRect = Rect()
+    /** 通过计算算出的afx在此TabView中的位置 */
+    private val calculateSelectedAfxRect = Rect()
+    /** 选中星球屏幕中的位置 */
+    private val selectedPlanetViewGlobalRect = Rect()
+
+    /** item中仅星球的大小和顶部间距 */
+    private val planetTopSpace = resources.getDimension(R.dimen.planet_top_space)
+    private val planetOriginalWidth = resources.getDimension(R.dimen.planet_width)
+    private val planetOriginalHeight = resources.getDimension(R.dimen.planet_height)
+
     /** 滑动后选中星球的AFX特效动画 */
     private val planetAfxView by lazy {
         PlanetAfxView(context).apply {
@@ -140,11 +152,10 @@ class PlanetTabView : FrameLayout {
             }
         }
     }
-    /** item中仅星球的大小和顶部间距 */
-    private val planetTopSpace = resources.getDimension(R.dimen.planet_top_space)
-    private val planetOriginalWidth = resources.getDimension(R.dimen.planet_width)
-    private val planetOriginalHeight = resources.getDimension(R.dimen.planet_height)
 
+    /** 最小最大动画时长 */
+    private val minAnimDuration = 330L
+    private val maxAnimDuration = 660L
     /** 动画集 */
     private val animSet by lazy {
         AnimatorSet().apply {
@@ -223,10 +234,25 @@ class PlanetTabView : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (childCount > 0) {
-            for (index in 0 until (childCount - 1)) {
-                layoutItemChildren(index)
+            for (index in 0 until childCount) {
+                when (getChildAt(index)) {
+                    is PlanetItemView -> layoutItemChildren(index)
+                }
             }
-            layoutSelectedAfx(getChildAt(childCount - 1))
+        }
+        if (isUseCalculateRect()) {
+            calculateSelectedAfxRect.let {
+                planetAfxView.layout(it.left, it.top, it.right, it.bottom)
+            }
+            planetTabViewGlobalRect.set(0, 0, 0, 0)
+            selectedPlanetViewGlobalRect.set(0, 0, 0, 0)
+        } else {
+            planetAfxView.layout(
+                selectedPlanetViewGlobalRect.left,
+                selectedPlanetViewGlobalRect.top - planetTabViewGlobalRect.top,
+                selectedPlanetViewGlobalRect.right,
+                selectedPlanetViewGlobalRect.bottom - planetTabViewGlobalRect.top
+            )
         }
     }
 
@@ -327,7 +353,7 @@ class PlanetTabView : FrameLayout {
             // 选中星球文本隐藏
             val threshold = (1 - sin(angleToRadian(angle)).toFloat()) / 2 * 0.6f + 0.4f
             child.alpha = threshold
-            child.setNameAlpha(if (isSelectedRange) calculateSelectItemProportion(angleAbs) else 1f)
+            child.setItemViewAlpha(if (isSelectedRange) calculateSelectItemProportion(angleAbs) else 1f)
         }
         val diffTopSpace = if (isSelectedRange) {
             val prop = 1 - calculateSelectItemProportion(angleAbs)
@@ -340,27 +366,6 @@ class PlanetTabView : FrameLayout {
 
         child.scaleX = scale
         child.scaleY = scale
-    }
-
-    /**
-     * 布局选中状态的afx动画位置
-     * 通过afx原始大小 和 选中状态的缩放比，以及选中状态星球layout_marginTop 值的缩放比计算最终位置
-     */
-    private fun layoutSelectedAfx(childAt: View?) {
-        val afxRect = calculateSelectedPlanetAfx()
-        val scale = calculateSelectScaleRule(startAngle)
-        val afxWidth = planetOriginalWidth * scale
-        val afxHeight = planetOriginalHeight * scale
-        val diffWidth = afxWidth - planetOriginalWidth
-        val diffHeight = afxHeight - planetOriginalHeight
-        val scaleTopScale = 0
-//        val scaleTopScale = planetTopSpace * scale / 2
-        childAt?.layout(
-            (afxRect.left - diffWidth / 2).toInt(),
-            (afxRect.top - diffHeight / 2 + scaleTopScale).toInt(),
-            (afxRect.right + diffWidth / 2).toInt(),
-            (afxRect.bottom + diffHeight / 2 + scaleTopScale).toInt()
-        )
     }
 
     /** 根据宽高和弧度计算layout的位置 */
@@ -376,6 +381,51 @@ class PlanetTabView : FrameLayout {
         val y2 = (coordinateY + height / 2).toInt()
 
         return Rect(x1, y1, x2, y2)
+    }
+
+    /**
+     * 布局选中状态的afx动画位置
+     * 通过afx原始大小 和 选中状态的缩放比，以及选中状态星球layout_marginTop 值的缩放比计算最终位置
+     */
+    private fun calculateSelectedAfxLayoutRect() {
+        val afxRect = calculateSelectedPlanetAfx()
+        val scale = calculateSelectScaleRule(startAngle)
+        val afxWidth = planetOriginalWidth * scale
+        val afxHeight = planetOriginalHeight * scale
+        val diffWidth = afxWidth - planetOriginalWidth
+        val diffHeight = afxHeight - planetOriginalHeight
+        val scaleTopScale = 0
+//        val scaleTopScale = planetTopSpace * scale / 2
+        calculateSelectedAfxRect.set(
+            (afxRect.left - diffWidth / 2).toInt(),
+            (afxRect.top - diffHeight / 2 + scaleTopScale).toInt(),
+            (afxRect.right + diffWidth / 2).toInt(),
+            (afxRect.bottom + diffHeight / 2 + scaleTopScale).toInt()
+        )
+    }
+
+    /**
+     * 是否使用计算出来的afx的位置，默认不使用(存在1px的偏移，float转int导致)
+     * 误差值：若计算值和动态计算出来的值存在大于 2px 则使用计算，证明此时动态计算出来的可能有问题
+     * 比如：页面上滑View位置发生变化，此View的父布局发生了layout导致此View重新布局就可能存在异常
+     */
+    private fun isUseCalculateRect(): Boolean {
+        if (calculateSelectedAfxRect.right == 0) {
+            calculateSelectedAfxLayoutRect()
+        }
+        if (planetTabViewGlobalRect.right == 0) {
+            getGlobalVisibleRect(planetTabViewGlobalRect)
+        }
+        if (selectedPlanetViewGlobalRect.right == 0) {
+            (getCurrentSelectedView() as? PlanetItemView)?.getSelectedIcon()
+                ?.getGlobalVisibleRect(selectedPlanetViewGlobalRect)
+        }
+        val difference = 2
+        val top = selectedPlanetViewGlobalRect.top - planetTabViewGlobalRect.top
+        val bottom = selectedPlanetViewGlobalRect.bottom - planetTabViewGlobalRect.top
+        val diffTop = calculateSelectedAfxRect.top - top
+        val diffBottom = calculateSelectedAfxRect.bottom - bottom
+        return abs(diffTop) > difference || abs(diffBottom) > difference
     }
 
     /**
@@ -543,7 +593,6 @@ class PlanetTabView : FrameLayout {
      */
     private fun executeToggleTransitionAnimation(count: Int) {
         if (isAnimRunning || dataCount <= 0) return
-        afxStop()
         currentToggleNum = count
         initTransitionAnimList()
         animDirection = if (isSwipeRight) ANIM_DIRECTION_RIGHT else ANIM_DIRECTION_LEFT
@@ -569,7 +618,12 @@ class PlanetTabView : FrameLayout {
                 if (index == 0) build = animSet.play(it) else build?.with(it)
             }
         }
-        animSet.duration = if (count == 1) 330L else 660L
+
+        // afx提前播放
+        afxStop()
+        // 开始播放动画
+        val duration = if (count == 1) minAnimDuration else maxAnimDuration
+        animSet.duration = duration
         isAnimRunning = true
         animSet.start()
     }

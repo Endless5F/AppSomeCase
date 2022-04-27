@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -50,7 +51,11 @@ class PlanetItemView : FrameLayout {
         }
     }
 
-    fun setNameAlpha(alpha: Float) {
+    fun getSelectedIcon(): View? {
+        return iconSelectView
+    }
+
+    fun setItemViewAlpha(alpha: Float) {
         // 2倍速渐变：1f - (1f - alpha) * 2，(1f - alpha) * 2 属于0..1f
         val diff2x = (1f - alpha) * 2
         val alpha2x = 1f - if (diff2x < 0) 0f else if (diff2x > 1f) 1f else diff2x

@@ -48,7 +48,7 @@ fun endAllCoroutine() {
 /**
  * start counting down from [duration] to 0 in a background thread and invoking the [onCountdown] every [interval] in main thread
  */
-fun <T> countdown2(duration: Long, interval: Long, context: CoroutineContext = Dispatchers.Default,onCountdown: suspend (Long) -> T): Flow<T> =
+fun <T> countdown(duration: Long, interval: Long, context: CoroutineContext = Dispatchers.Default, onCountdown: suspend (Long) -> T): Flow<T> =
     flow { (duration - interval downTo 0 step interval).forEach { emit(it) } }
         .onEach { delay(interval) }
         .onStart { emit(duration) }

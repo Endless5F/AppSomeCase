@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +16,7 @@ import com.android.app.viewpager.IconPageAdapter
 import com.android.app.viewpager.PAGE_WIDTH
 import com.android.core.common.recyclerview.common.RecyclerAdapter
 import com.android.core.common.recyclerview.layoutmanager.LaneLayoutManager
-import com.android.core.ext.countdown2
+import com.android.core.ext.countdown
 import com.android.core.utils.dip
 import com.android.core.utils.wrapLayoutParam
 import kotlinx.coroutines.MainScope
@@ -98,7 +99,6 @@ class MainActivity : AppCompatActivity() {
                         val scaleFactor = diff / PAGE_WIDTH
                         view.scaleX = mMinScale
                         view.scaleY = mMinScale
-//                        view.translationX = -dip(10) * scaleFactor
                         Log.e(
                             "jcy",
                             "setPageTransformer: 222 PAGE_WIDTH=$PAGE_WIDTH diff=$diff scaleFactor=$scaleFactor"
@@ -113,8 +113,8 @@ class MainActivity : AppCompatActivity() {
             rv.adapter = LaneAdapter()
             rv.layoutManager = LaneLayoutManager()
 
-            countdown2(Long.MAX_VALUE, 100) {
-                rv.smoothScrollBy(10, 0)
+            countdown(Long.MAX_VALUE, 100) {
+                rv.smoothScrollBy(dip(10), 0, LinearInterpolator(), 120)
             }.launchIn(MainScope())
         }
     }
@@ -127,29 +127,6 @@ class MainActivity : AppCompatActivity() {
             LaneBean("ddd3"),
             LaneBean("111111111cccdkfjsdlfjdslkfjlsdkfjlkdsfjksdl"),
             LaneBean("dddidddddddddddddddddddd"),
-//            LaneBean("eee4"),
-//            LaneBean("fff5"),
-//            LaneBean("ggg6"),
-//            LaneBean("hhh7"),
-//            LaneBean("iii8"),
-//            LaneBean("22222222222iiiklsdjflksdjflkjsdlkfjlskdfjlksdjflksdfs"),
-//            LaneBean("jjj9"),
-//            LaneBean("kkk10"),
-//            LaneBean("lll11"),
-//            LaneBean("mmm12"),
-//            LaneBean("333333333mmmdkslfslkdfjlksdjlksdjfsldkjfkdfsdfsdfsdf"),
-//            LaneBean("nnn13"),
-//            LaneBean("ooo14"),
-//            LaneBean("ppp15"),
-//            LaneBean("qqqq16"),
-//            LaneBean("rrr17"),
-//            LaneBean("ssss18"),
-//            LaneBean("ttt19"),
-//            LaneBean("44444444444qqsdjklfjlsdkfjlsdkfjlsdkfjlsdkfjlsdkfjsldkfjsldkfq"),
-//            LaneBean("uuu20"),
-//            LaneBean("666666666666iiiklsdjflksdjflkjsdlkfjlskdfjlksdjflksdfs"),
-//            LaneBean("7777777777mmmdkslfslkdfjlksdjlksdjfsldkjfkdfsdfsdfsdf"),
-//            LaneBean("88888888888qqsdjklfjlsdkfjlsdkfjlsdkfjlsdkfjlsdkfjsldkfjsldkfq"),
         )
 
         override fun getInnerItemCount(): Int {
