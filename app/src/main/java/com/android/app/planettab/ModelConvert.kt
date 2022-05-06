@@ -42,8 +42,6 @@ fun PlanetListModel?.convertViewData(): List<PlanetItemData> {
                 // 初始化index
                 initIndex(index)
                 if (id == model.id) {
-                    // 设置选中态
-                    isSelected = true
                     selectIndex = index
                 }
             }

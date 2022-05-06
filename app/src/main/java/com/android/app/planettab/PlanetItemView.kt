@@ -21,6 +21,7 @@ import kotlin.math.abs
 class PlanetItemView : FrameLayout {
     private var nameView: TextView? = null
     private var iconView: ImageView? = null
+    private var popupView: ImageView? = null
     private var iconSelectView: ImageView? = null
     private var planetBean: PlanetItemData? = null
 
@@ -38,6 +39,7 @@ class PlanetItemView : FrameLayout {
         LayoutInflater.from(context).inflate(R.layout.layout_planet_view, this)
         nameView = findViewById(R.id.planet_name)
         iconView = findViewById(R.id.planet_icon)
+        popupView = findViewById(R.id.planet_pop)
         iconSelectView = findViewById(R.id.planet_icon_select)
     }
 
@@ -62,6 +64,7 @@ class PlanetItemView : FrameLayout {
 
         nameView?.alpha = alpha2x
         iconView?.alpha = alpha2x
+        popupView?.alpha = alpha2x
         iconSelectView?.alpha = 1f - alpha
     }
 

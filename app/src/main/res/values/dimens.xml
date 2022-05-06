@@ -1,5 +1,5 @@
 <resources>
     <dimen name="planet_width">80dp</dimen>
     <dimen name="planet_height">48dp</dimen>
-    <dimen name="planet_top_space">12dp</dimen>
+    <dimen name="planet_top_space">16dp</dimen>
 </resources>

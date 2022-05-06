@@ -6,7 +6,10 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.graphics.Path
+import android.graphics.PathMeasure
 import android.graphics.Rect
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -21,8 +24,10 @@ import com.android.core.utils.dip
 import com.android.core.utils.getScreenWidth
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * 动画方向
@@ -62,7 +67,7 @@ private const val ANIM_DIRECTION_RIGHT = 1
  * 缺点：点击事件有问题(需动态计算)
  */
 @SuppressLint("ClickableViewAccessibility")
-class PlanetTabView : FrameLayout {
+class PlanetTabViewAnim : FrameLayout {
     private var centerX = 0
     private var centerY = 0
     private var viewWidth = 0
@@ -98,14 +103,12 @@ class PlanetTabView : FrameLayout {
 
     /** 当前选中位置(以数据源中index为主) */
     private var currentSelectedIndex = 0
+
     /** 将来选中位置(以数据源中index为主) */
     private var futureSelectedIndex = 0
 
     /** 本地切换动画切换次数 */
     private var currentToggleNum = 1
-
-    /** 是否允许滑动 */
-    private var swipeEnable = true
 
     /** 随手滑动动画方向，是否向右滑动 */
     private var isSwipeRight = false
@@ -119,23 +122,28 @@ class PlanetTabView : FrameLayout {
     /** 动画滑动过程中触发切换的阈值方 */
     private var swipeToggleDistance = dip(100).toFloat()
 
-    /** 滑动后的动画集 */
-    private val transitionAnimList = arrayListOf<ValueAnimator>()
-
     private var dataCount = 0
+
     /** 数据源 */
     private var dataArray: List<PlanetItemData>? = null
 
     private var isClickSwitch = true
+
     /** 点击已选中的星球Tab 回调 */
     var clickSelectedCallback: ((PlanetItemData?) -> Unit)? = null
+
     /** 切换Tab 回调 */
     var switchTabCallback: ((PlanetItemData, direction: Int) -> Unit)? = null
 
+    /** 星球轨迹的位置 */
+    private val planetTrackRect = RectF()
+
     /** 此TabView屏幕中的位置 */
     private val planetTabViewGlobalRect = Rect()
+
     /** 通过计算算出的afx在此TabView中的位置 */
     private val calculateSelectedAfxRect = Rect()
+
     /** 选中星球屏幕中的位置 */
     private val selectedPlanetViewGlobalRect = Rect()
 
@@ -156,6 +164,7 @@ class PlanetTabView : FrameLayout {
     /** 最小最大动画时长 */
     private val minAnimDuration = 330L
     private val maxAnimDuration = 660L
+
     /** 动画集 */
     private val animSet by lazy {
         AnimatorSet().apply {
@@ -173,6 +182,7 @@ class PlanetTabView : FrameLayout {
                 override fun onAnimationEnd(animation: Animator?) {
                     changeItemIndex()
                     changeItemsAngle()
+
                     isAnimRunning = false
                     animDirection = ANIM_DIRECTION_NONE
 
@@ -212,6 +222,11 @@ class PlanetTabView : FrameLayout {
 
         centerX = viewWidth / 2
         centerY = originalOvalHeight / 2
+
+        planetTrackRect.set(
+            padding.toFloat(), padding.toFloat(),
+            (viewWidth - padding).toFloat(), ovalYRadius * 2 + padding
+        )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -228,7 +243,13 @@ class PlanetTabView : FrameLayout {
             val diffPlanetTopSpace = planetTopSpace * maxScala / 2
             centerY = (ovalYRadius + minPlanetRadius + paddingTop).toInt()
             // View的高度 = 原始椭圆轨道高度 + 顶部最小星球半径 + 底部最大星球半径 - 选中星球文本位移的距离
-            viewHeight = (viewHeight + minPlanetRadius + maxPlanetRadius - diffPlanetTopSpace).toInt()
+            viewHeight =
+                (viewHeight + minPlanetRadius + maxPlanetRadius - diffPlanetTopSpace).toInt()
+
+            planetTrackRect.set(
+                padding.toFloat(), minPlanetRadius + paddingTop,
+                (viewWidth - padding).toFloat(), viewHeight + paddingTop - maxPlanetRadius
+            )
         }
 
         setMeasuredDimension(viewWidth, viewHeight + paddingTop + paddingBottom)
@@ -287,19 +308,31 @@ class PlanetTabView : FrameLayout {
                             }
                             isClickSwitch = true
                             // 点击星球多个切换过渡动画逻辑
-                            executeToggleTransitionAnimation(count)
+                            initToggleTransitionAnimation(count)
                         } else {
                             clickSelectedCallback?.invoke(it)
                         }
                     }
                 }
-                addView(child, LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(
+                    child,
+                    LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                )
             }
 
             calculateAngleArray(startAngle, dataCount)
             switchTabCallback?.invoke(data[currentSelectedIndex], ANIM_DIRECTION_NONE)
 
-            addView(planetAfxView, LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            addView(
+                planetAfxView,
+                LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
         }
         afxPlay()
         requestLayout()
@@ -309,7 +342,6 @@ class PlanetTabView : FrameLayout {
     private fun resetTabViewToInitial() {
         animSet.cancel()
         removeAllViews()
-        transitionAnimList.clear()
         animDirection = ANIM_DIRECTION_NONE
     }
 
@@ -336,7 +368,7 @@ class PlanetTabView : FrameLayout {
     private fun layoutItemChildren(index: Int) {
         val child = getChildAt(index)
         // 度数
-        val angle = dataArray?.getOrNull(index)?.currentAngle ?: startAngle
+        val angle = dataArray?.getOrNull(index)?.currentAngle() ?: startAngle
         // 弧度
         val radian = angleToRadian(angle)
         val rect = calculateItemLayoutRect(child, radian)
@@ -345,7 +377,8 @@ class PlanetTabView : FrameLayout {
         val angleAbs = (angle + 360) % 360
         val isRange = PlanetItemData.isSelectAngleRange(angleAbs)
         // 是否选中态特殊处理
-        val isSelectedRange = (currentSelectedIndex == index || futureSelectedIndex == index) && isRange
+        val isSelectedRange =
+            (currentSelectedIndex == index || futureSelectedIndex == index) && isRange
         val scale = if (isSelectedRange) {
             calculateSelectScaleRule(angleAbs)
         } else {
@@ -362,7 +395,8 @@ class PlanetTabView : FrameLayout {
             prop * planetTopSpace * scale / 2
         } else 0f
 
-        child.layout(rect.left, (rect.top - diffTopSpace).toInt(), rect.right,
+        child.layout(
+            rect.left, (rect.top - diffTopSpace).toInt(), rect.right,
             (rect.bottom - diffTopSpace).toInt()
         )
 
@@ -442,7 +476,11 @@ class PlanetTabView : FrameLayout {
     /** 计算选中星球afx位置 */
     private fun calculateSelectedPlanetAfx(): Rect {
         val radian = angleToRadian(startAngle)
-        return calculateLayoutRect(planetOriginalWidth.toInt(), planetOriginalHeight.toInt(), radian)
+        return calculateLayoutRect(
+            planetOriginalWidth.toInt(),
+            planetOriginalHeight.toInt(),
+            radian
+        )
     }
 
     /** 计算未选中星球单独缩放规则 */
@@ -452,20 +490,19 @@ class PlanetTabView : FrameLayout {
         return ((cameraDistance - ovalYRadius * sin(radian)) / cameraDistance).toFloat()
     }
 
-    /** 计算选中星球最大缩放规则 */
-    private fun calculateSelectMaxScaleRule(): Float {
-        return (((cameraDistance - ovalYRadius * sin(angleToRadian(startAngle))) / cameraDistance) * startScala).toFloat()
-    }
-
     /** 计算选中(最前方)星球单独缩放规则 */
     private fun calculateSelectScaleRule(angle: Float): Float {
         val firstNextAngle = PlanetItemData.firstNextAngle
+        // 代表选中(最前方最近的)星球弧度
+        val firstRadian = angleToRadian(startAngle)
         // 代表选中(最前方最近的)星球下一个位置的弧度
         val firstNextRadian = angleToRadian(firstNextAngle)
         // 选中星球的单独放大规则处理
-        val firstScala = calculateSelectMaxScaleRule()
+        val firstScala =
+            (((cameraDistance - ovalYRadius * sin(firstRadian)) / cameraDistance) * startScala).toFloat()
         // 选中星球下一个星球的正常规则处理
-        val firstNextScala = calculateUnSelectScaleRule(firstNextRadian)
+        val firstNextScala =
+            (((cameraDistance - ovalYRadius * sin(firstNextRadian)) / cameraDistance)).toFloat()
         return (1 - calculateSelectItemProportion(angle)) * (firstScala - firstNextScala) + firstNextScala
     }
 
@@ -492,17 +529,11 @@ class PlanetTabView : FrameLayout {
             MotionEvent.ACTION_DOWN -> {
                 downX = x
                 downY = y
-                resetSwipeProgress()
                 firstPointerId = event.getPointerId(0)
             }
             MotionEvent.ACTION_MOVE -> {
                 val dx = downX - x
                 val dy = downY - y
-                if (swipeEnable) {
-                    // 执行滑动动画，星球滑动(随手仅x轴)过渡动画逻辑
-                    swipeDirectionAndProgress(dx)
-                    executeSwipeTransitionAnimation()
-                }
                 if (abs(dx) > abs(dy) && abs(dx) > touchSlop) {
                     // 解决横竖滑动事件冲突
                     requestDisallowInterceptTouchEvent(true)
@@ -515,11 +546,11 @@ class PlanetTabView : FrameLayout {
                 if (currentPointerId == firstPointerId) {
                     val dx = downX - x
                     val dy = downY - y
-                    if (abs(dx) > abs(dy) && abs(dx) > touchSlop || lastSwipeProgress != 0f) {
+                    if (abs(dx) > abs(dy) && abs(dx) > touchSlop) {
                         isSwipeRight = dx <= 0
                         isClickSwitch = false
                         // 执行切换动画，星球单个切换过渡动画逻辑
-                        executeToggleTransitionAnimation(1)
+                        initToggleTransitionAnimation(1)
                     }
                 }
             }
@@ -537,96 +568,79 @@ class PlanetTabView : FrameLayout {
         return super.onTouchEvent(event)
     }
 
-    /** 随手滑动动画进度 */
-    private var swipeProgress = 0f
-    private var lastSwipeProgress = 0f
-
-    /** 重置随手滑动动画进度 */
-    private fun resetSwipeProgress() {
-        swipeProgress = 0f
-        lastSwipeProgress = 0f
-    }
-
-    /** 计算滑动方向和进度 */
-    private fun swipeDirectionAndProgress(dx: Float) {
-        isSwipeRight = dx <= 0
-        // 滑动进度
-        swipeProgress = abs(dx) / swipeToggleDistance
-        swipeProgress = if (swipeProgress > 1f) 1f else swipeProgress
-    }
-
-    /** 执行滑动动画 */
-    private fun executeSwipeTransitionAnimation() {
-        planetAfxView.visibility = INVISIBLE
-        getCurrentSelectedView()?.visibility = VISIBLE
-        val fromProgress = lastSwipeProgress
-        val toProgress = swipeProgress
-        lastSwipeProgress = toProgress
-        futureSelectedIndex = if (isSwipeRight)  {
-            (currentSelectedIndex - 1 + dataCount) % dataCount
-        } else {
-            (currentSelectedIndex + 1 + dataCount) % dataCount
-        }
-        dataArray?.forEach { item ->
-            var fromAngle = item.currentAngle()
-            val endAngle: Float
-            val toAngle = if (isSwipeRight) {
-                // 右滑：current --> next (小 --> 大)
-                val nextAngle = item.nextAngle(1)
-                endAngle = if (fromAngle > nextAngle) nextAngle + 360 else nextAngle
-                fromAngle += (endAngle - fromAngle) * fromProgress
-                val toAngle = (endAngle - fromAngle) * toProgress + fromAngle
-                toAngle
-            } else {
-                // 左滑：current --> previous (大 --> 小)
-                val previousAngle = item.previousAngle(1)
-                endAngle = if (fromAngle < previousAngle) previousAngle - 360 else previousAngle
-                fromAngle -= (fromAngle - endAngle) * fromProgress
-                val toAngle = fromAngle - (fromAngle - endAngle) * toProgress
-                toAngle
-            }
-            item.currentAngle = toAngle
-            layoutItemChildren(item.originalIndex)
-        }
-    }
-
     /**
      * 执行切换动画
      * @param count 切换个数
      */
-    private fun executeToggleTransitionAnimation(count: Int) {
+    private fun initToggleTransitionAnimation(count: Int) {
         if (isAnimRunning || dataCount <= 0) return
         currentToggleNum = count
-        initTransitionAnimList()
         animDirection = if (isSwipeRight) ANIM_DIRECTION_RIGHT else ANIM_DIRECTION_LEFT
-        futureSelectedIndex = if (isSwipeRight)  {
+        futureSelectedIndex = if (isSwipeRight) {
             (currentSelectedIndex - count + dataCount) % dataCount
         } else {
             (currentSelectedIndex + count + dataCount) % dataCount
         }
         var build: AnimatorSet.Builder? = null
         dataArray?.forEachIndexed { index, item ->
-            val fromAngle = item.currentAngle
+            val path = Path()
+            val fromAngle = 360 - item.currentAngle
             val toAngle = if (isSwipeRight) {
-                // 右滑：current --> next (小 --> 大)
-                val nextAngle = item.nextAngle(count)
-                if (fromAngle > nextAngle) nextAngle + 360 else nextAngle
+                // 右滑：current --> next (大 --> 小)
+                val nextAngle = 360 - item.nextAngle(count)
+                if (fromAngle < nextAngle) nextAngle - 360 else nextAngle
             } else {
-                // 左滑：current --> previous (大 --> 小)
-                val previousAngle = item.previousAngle(count)
-                if (fromAngle < previousAngle) previousAngle - 360 else previousAngle
+                // 左滑：current --> previous (小 --> 大)
+                val previousAngle = 360 - item.previousAngle(count)
+                if (fromAngle > previousAngle) previousAngle + 360 else previousAngle
             }
-            transitionAnimList.getOrNull(item.originalIndex)?.let {
-                it.setFloatValues(fromAngle, toAngle)
-                if (index == 0) build = animSet.play(it) else build?.with(it)
+
+            path.addArc(planetTrackRect, fromAngle, fromAngle - toAngle)
+            val pathMeasure = PathMeasure(path, false)
+
+            val valueAnimator = ValueAnimator.ofFloat(0f, pathMeasure.length)
+            valueAnimator.duration = if (count == 1) minAnimDuration else maxAnimDuration
+            valueAnimator.addUpdateListener { animation ->
+                val value = animation.animatedValue as Float
+                val currentPos = FloatArray(2)
+                pathMeasure.getPosTan(value, currentPos, null)
+                val angle = getAngleFromCoordinate(currentPos).toFloat()
+
+
+                /* 计算缩放比例 */
+                val angleAbs = (angle + 360) % 360
+                val isRange = PlanetItemData.isSelectAngleRange(angleAbs)
+                // 是否选中态特殊处理
+                val isSelectedRange =
+                    (currentSelectedIndex == index || futureSelectedIndex == index) && isRange
+                val scale = if (isSelectedRange) {
+                    calculateSelectScaleRule(angleAbs)
+                } else {
+                    calculateUnSelectScaleRule(angleToRadian(angle))
+                }
+                val diffTopSpace = if (isSelectedRange) {
+                    val prop = 1 - calculateSelectItemProportion(angleAbs)
+                    prop * planetTopSpace * scale / 2
+                } else 0f
+
+                (getChildAt(item.originalIndex) as? PlanetItemView)?.let { itemView ->
+                    // 选中星球文本隐藏
+                    val threshold = (1 - sin(angleToRadian(angle)).toFloat()) / 2 * 0.6f + 0.4f
+                    itemView.alpha = threshold
+                    itemView.setItemViewAlpha(if (isSelectedRange) calculateSelectItemProportion(angleAbs) else 1f)
+                    itemView.scaleX = scale
+                    itemView.scaleY = scale
+                    itemView.translationX = currentPos[0]
+                    itemView.translationY = currentPos[1] - diffTopSpace
+                }
             }
+            if (index == 0) build = animSet.play(valueAnimator) else build?.with(valueAnimator)
         }
 
         // afx提前播放
         afxStop()
         // 开始播放动画
-        val duration = if (count == 1) minAnimDuration else maxAnimDuration
-        animSet.duration = duration
+        animSet.duration = if (count == 1) minAnimDuration else maxAnimDuration
         isAnimRunning = true
         animSet.start()
     }
@@ -667,45 +681,25 @@ class PlanetTabView : FrameLayout {
         planetAfxView.afxStop()
     }
 
-    /** 选中星球的显示与隐藏 */
-    fun setSelectedPlanetVisibility(visibility: Int) {
-        planetAfxView.visibility = visibility
-        getCurrentSelectedView()?.visibility = INVISIBLE
-    }
-
-    /** 选中星球的位置 */
-    fun getSelectedPlanetLocation(): Rect {
-        val rect = Rect()
-        getCurrentSelectedView()?.getGlobalVisibleRect(rect)
-        return rect
-    }
-
     /** 获取选中星球View */
     private fun getCurrentSelectedView(): View? {
         return getChildAt(dataArray?.getOrNull(currentSelectedIndex)?.originalIndex ?: 0)
     }
 
-    private fun initTransitionAnimList() {
-        if (transitionAnimList.isEmpty() && dataCount > 0) {
-            for (i in 0 until dataCount) {
-                transitionAnimList.add(createPlanetTransitionAnim(i))
-            }
-        }
-    }
-
-    private fun createPlanetTransitionAnim(index: Int): ValueAnimator {
-        return ValueAnimator().apply {
-            this.addUpdateListener {
-                val value = it.animatedValue as Float
-                dataArray?.getOrNull(index)?.currentAngle = value
-                layoutItemChildren(index)
-            }
-        }
-    }
-
     /** 角度转弧度 */
     private fun angleToRadian(angle: Float): Double {
         return angle.toDouble() * PI / 180
+    }
+
+    /** 根据坐标获取当前角度 */
+    private fun getAngleFromCoordinate(floatArray: FloatArray): Double {
+        if (floatArray.size < 2) return 0.0
+        val x = floatArray[0]
+        val y = floatArray[1]
+        val l = sqrt((x * x + y * y).toDouble())
+        val radian = acos(x / l)
+        val angle = radian * 180f / PI
+        return if (y < 0) (360f - angle) else angle
     }
 
     override fun onDetachedFromWindow() {
