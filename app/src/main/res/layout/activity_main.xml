@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/planet_background"
     android:clipChildren="false"
+    android:clipToPadding="false"
     android:orientation="vertical">
 
     <!--    <com.android.core.widget.multiimage.RecMultiImageLayout-->
@@ -33,17 +35,50 @@
         android:id="@+id/planet_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp" />
+        android:clipChildren="false" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/vp2"
         android:layout_width="match_parent"
         android:layout_height="110dp"
+        android:layout_marginTop="50dp"
         android:clipToPadding="false" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"/>
+    <FrameLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:clipChildren="false">
+        <FrameLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:clipChildren="false">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="@dimen/planet_width"
+                android:layout_height="@dimen/planet_container_height"
+                android:layout_gravity="center_horizontal"
+                android:clipChildren="false">
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_gravity="center"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:src="@drawable/icon_popup"/>
+
+                <com.android.app.LayoutFragment
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <com.android.app.planettab.PlanetItemView
+                        android:id="@+id/pop"
+                        android:layout_width="@dimen/planet_width"
+                        android:layout_height="@dimen/planet_container_height" />
+                </com.android.app.LayoutFragment>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </FrameLayout>
+    </FrameLayout>
 
 </LinearLayout>

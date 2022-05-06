@@ -3,7 +3,6 @@ package com.android.app.planettab
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -12,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.android.app.R
+import com.android.core.utils.dip
 import kotlin.math.abs
 
 /**
@@ -21,7 +21,8 @@ import kotlin.math.abs
 class PlanetItemView : FrameLayout {
     private var nameView: TextView? = null
     private var iconView: ImageView? = null
-    private var popupView: ImageView? = null
+    private var popupPointView: ImageView? = null
+    private var popupIconView: ImageView? = null
     private var iconSelectView: ImageView? = null
     private var planetBean: PlanetItemData? = null
 
@@ -36,11 +37,17 @@ class PlanetItemView : FrameLayout {
     )
 
     init {
+        clipChildren = false
         LayoutInflater.from(context).inflate(R.layout.layout_planet_view, this)
         nameView = findViewById(R.id.planet_name)
         iconView = findViewById(R.id.planet_icon)
-        popupView = findViewById(R.id.planet_pop)
+        popupPointView = findViewById(R.id.planet_pop_point)
+        popupIconView = findViewById(R.id.planet_pop_icon)
         iconSelectView = findViewById(R.id.planet_icon_select)
+
+        popupIconView?.alpha = 0f
+
+        setPlanetBean(PlanetItemData())
     }
 
     fun setPlanetBean(planetBean: PlanetItemData) {
@@ -64,13 +71,29 @@ class PlanetItemView : FrameLayout {
 
         nameView?.alpha = alpha2x
         iconView?.alpha = alpha2x
-        popupView?.alpha = alpha2x
+        popupPointView?.alpha = alpha2x
         iconSelectView?.alpha = 1f - alpha
+    }
+
+    fun playPopAnim() {
+        popupIconView?.alpha = 1f
+        popupPointView?.alpha = 0f
+        popupIconView?.scaleX = 5f
+        popupIconView?.scaleY = 5f
+        popupIconView?.translationY = dip(10).toFloat()
+        popupIconView?.rotation = 15f
+        popupIconView?.z = 1f
+    }
+
+    fun stopPopAnim() {
+        popupIconView?.alpha = 0f
+        popupPointView?.alpha = 1f
     }
 
     /** 手势处理 */
     private var downX = 0f
     private var downY = 0f
+
     /** 系统所认为的最小滑动距离TouchSlop */
     private var touchSlop = ViewConfiguration.get(context).scaledTouchSlop
 

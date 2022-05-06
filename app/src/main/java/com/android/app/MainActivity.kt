@@ -6,11 +6,14 @@ import android.util.Log
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
+import com.android.app.planettab.PlanetItemView
 import com.android.app.planettab.PlanetTabView
+import com.android.app.planettab.PlanetTabViewAnim
 import com.android.app.planettab.initData
 import com.android.app.viewpager.IconPageAdapter
 import com.android.app.viewpager.PAGE_WIDTH
@@ -55,6 +58,12 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<PlanetTabView>(R.id.planet_tab)?.let {
             it.initPlanetListData(initData())
+        }
+
+        findViewById<PlanetItemView>(R.id.pop)?.let {
+            it.scaleX = 1.2f
+            it.scaleY = 1.2f
+            it.playPopAnim()
         }
 
         val mMinScale = 0.75f
@@ -109,14 +118,14 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        findViewById<RecyclerView>(R.id.rv)?.let { rv ->
-            rv.adapter = LaneAdapter()
-            rv.layoutManager = LaneLayoutManager()
-
-            countdown(Long.MAX_VALUE, 100) {
-                rv.smoothScrollBy(dip(10), 0, LinearInterpolator(), 120)
-            }.launchIn(MainScope())
-        }
+//        findViewById<RecyclerView>(R.id.rv)?.let { rv ->
+//            rv.adapter = LaneAdapter()
+//            rv.layoutManager = LaneLayoutManager()
+//
+//            countdown(Long.MAX_VALUE, 100) {
+//                rv.smoothScrollBy(dip(10), 0, LinearInterpolator(), 120)
+//            }.launchIn(MainScope())
+//        }
     }
 
     private inner class LaneAdapter : RecyclerAdapter() {

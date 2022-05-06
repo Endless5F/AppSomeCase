@@ -5,12 +5,12 @@ import com.android.app.R
 fun initData(): List<PlanetItemData> {
     val model = PlanetListModel()
     model.planetList.apply {
-        add(PlanetModel("1", "国漫", ""))
-        add(PlanetModel("2", "潮玩", ""))
-        add(PlanetModel("3", "冲浪", ""))
-        add(PlanetModel("4", "小说", ""))
-        add(PlanetModel("5", "漫画", ""))
-        add(PlanetModel("6", "游戏", ""))
+        add(PlanetModel("1", "国漫星", ""))
+        add(PlanetModel("2", "潮玩星", ""))
+        add(PlanetModel("3", "冲浪星", ""))
+        add(PlanetModel("4", "小说星", ""))
+        add(PlanetModel("5", "漫画星", ""))
+        add(PlanetModel("6", "游戏星", ""))
     }
     return model.convertViewData()
 }
@@ -67,7 +67,7 @@ fun getImageFromId(id: String?): Int {
         "4" -> R.drawable.icon_game_star // 游戏
         "5" -> R.drawable.icon_novel_star // 小说
         "6" -> R.drawable.icon_comic_star // 漫画
-        else -> R.drawable.planet_default_star // 默认
+        else -> R.drawable.icon_tide_play_star // 默认
     }
 }
 

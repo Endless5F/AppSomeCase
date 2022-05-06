@@ -1,45 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/planet_container_width"
+    android:layout_height="@dimen/planet_container_height"
+    android:paddingEnd="15dp"
+    android:paddingStart="15dp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/planet_name"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:text="国漫星"
+        android:textSize="@dimen/dp_10"
+        android:textColor="#AAFFFFFF"
+        app:layout_constraintBottom_toTopOf="@id/planet_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/planet_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="国漫星"
-            android:textColor="#AAFFFFFF" />
+    <ImageView
+        android:id="@+id/planet_pop_point"
+        android:layout_width="@dimen/dp_10"
+        android:layout_height="@dimen/dp_10"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/drawable_circle_point"
+        app:layout_constraintBottom_toTopOf="@id/planet_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/planet_pop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/drawable_circle_pointer"/>
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/planet_pop_icon"
+        android:layout_width="@dimen/dp_10"
+        android:layout_height="@dimen/dp_10"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/icon_popup"
+        app:layout_constraintBottom_toTopOf="@id/planet_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/planet_icon"
-        android:layout_width="@dimen/planet_width"
-        android:layout_height="@dimen/planet_height"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/planet_top_space"
-        android:src="@drawable/planet_default_star" />
+        android:src="@drawable/planet_default_star"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/planet_icon_select"
-        android:layout_width="@dimen/planet_width"
-        android:layout_height="@dimen/planet_height"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/planet_top_space"
-        android:src="@drawable/planet_default_star" />
+        android:src="@drawable/planet_default_star"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

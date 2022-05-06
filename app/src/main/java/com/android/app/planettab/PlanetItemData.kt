@@ -9,9 +9,9 @@ import com.android.app.R
  */
 class PlanetItemData(
     val id: String? = null,
-    val name: String? = null,
+    val name: String? = "null",
     val topicId: String? = null,
-    @DrawableRes val picture: Int = R.drawable.planet_default_star,
+    @DrawableRes val picture: Int = R.drawable.icon_tide_play_star,
     val afxPlayPath: String = "",
     @DrawableRes val pictureSelect: Int = R.drawable.icon_planet_selected
 ) {

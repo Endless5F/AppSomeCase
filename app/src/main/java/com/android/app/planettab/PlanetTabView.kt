@@ -8,6 +8,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -162,6 +163,13 @@ class PlanetTabView : FrameLayout {
             interpolator = DecelerateInterpolator()
             addListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator?) {
+                    if (childCount > 0) {
+                        for (index in 0 until childCount) {
+                            when (val child = getChildAt(index)) {
+                                is PlanetItemView -> child.stopPopAnim()
+                            }
+                        }
+                    }
                     dataArray?.getOrNull(futureSelectedIndex)?.let {
                         switchTabCallback?.invoke(
                             it,
@@ -179,6 +187,15 @@ class PlanetTabView : FrameLayout {
                     currentSelectedIndex = futureSelectedIndex
                     startVibrate(context as Activity)
                     afxPlay()
+
+                    clipChildren = false
+                    if (childCount > 0) {
+                        for (index in 0 until childCount) {
+                            when (val child = getChildAt(index)) {
+                                is PlanetItemView -> child.playPopAnim()
+                            }
+                        }
+                    }
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {
@@ -200,7 +217,7 @@ class PlanetTabView : FrameLayout {
     )
 
     init {
-        setWillNotDraw(false)
+        clipChildren = false
         viewWidth = context.getScreenWidth()
 
         ovalXRadius = (viewWidth - padding * 2).toFloat() / 2
@@ -234,8 +251,10 @@ class PlanetTabView : FrameLayout {
         setMeasuredDimension(viewWidth, viewHeight + paddingTop + paddingBottom)
     }
 
+    private val parentRect = Rect()
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
+//        super.onLayout(changed, left, top, right, bottom)
+        parentRect.set(left, top, right, bottom)
         if (childCount > 0) {
             for (index in 0 until childCount) {
                 when (getChildAt(index)) {
@@ -248,7 +267,6 @@ class PlanetTabView : FrameLayout {
                 planetAfxView.layout(it.left, it.top, it.right, it.bottom)
             }
             planetTabViewGlobalRect.set(0, 0, 0, 0)
-            selectedPlanetViewGlobalRect.set(0, 0, 0, 0)
         } else {
             planetAfxView.layout(
                 selectedPlanetViewGlobalRect.left,
@@ -260,6 +278,7 @@ class PlanetTabView : FrameLayout {
     }
 
     fun initPlanetListData(data: List<PlanetItemData>) {
+        clipChildren = false
         resetTabViewToInitial()
         dataArray = data
         if (!dataArray.isNullOrEmpty()) {
@@ -362,8 +381,11 @@ class PlanetTabView : FrameLayout {
             prop * planetTopSpace * scale / 2
         } else 0f
 
-        child.layout(rect.left, (rect.top - diffTopSpace).toInt(), rect.right,
-            (rect.bottom - diffTopSpace).toInt()
+
+
+
+        child.layout(rect.left, (rect.top - diffTopSpace).toInt()
+            , rect.right, (rect.bottom - diffTopSpace).toInt()
         )
 
         child.scaleX = scale
@@ -675,9 +697,14 @@ class PlanetTabView : FrameLayout {
 
     /** 选中星球的位置 */
     fun getSelectedPlanetLocation(): Rect {
-        val rect = Rect()
-        getCurrentSelectedView()?.getGlobalVisibleRect(rect)
-        return rect
+        return if (selectedPlanetViewGlobalRect.right == 0) {
+            val rect = Rect()
+            (getCurrentSelectedView() as? PlanetItemView)
+                ?.getSelectedIcon()?.getGlobalVisibleRect(rect)
+            rect
+        } else {
+            selectedPlanetViewGlobalRect
+        }
     }
 
     /** 获取选中星球View */
