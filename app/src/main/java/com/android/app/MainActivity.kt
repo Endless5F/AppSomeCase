@@ -60,12 +60,6 @@ class MainActivity : AppCompatActivity() {
             it.initPlanetListData(initData())
         }
 
-        findViewById<PlanetItemView>(R.id.pop)?.let {
-            it.scaleX = 1.2f
-            it.scaleY = 1.2f
-            it.playPopAnim()
-        }
-
         val mMinScale = 0.75f
         findViewById<ViewPager>(R.id.vp2)?.let {
             it.pageMargin = dip(-10)

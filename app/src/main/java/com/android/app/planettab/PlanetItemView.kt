@@ -1,5 +1,8 @@
 package com.android.app.planettab
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
@@ -45,8 +48,12 @@ class PlanetItemView : FrameLayout {
         popupIconView = findViewById(R.id.planet_pop_icon)
         iconSelectView = findViewById(R.id.planet_icon_select)
 
-        popupIconView?.alpha = 0f
-
+        popupIconView?.let {
+            it.z = 1f
+            it.alpha = 0f
+            it.rotation = 15f
+        }
+//        playPopAnim()
         setPlanetBean(PlanetItemData())
     }
 
@@ -78,11 +85,78 @@ class PlanetItemView : FrameLayout {
     fun playPopAnim() {
         popupIconView?.alpha = 1f
         popupPointView?.alpha = 0f
-        popupIconView?.scaleX = 5f
-        popupIconView?.scaleY = 5f
-        popupIconView?.translationY = dip(10).toFloat()
-        popupIconView?.rotation = 15f
-        popupIconView?.z = 1f
+
+        popupIconView?.let {
+            it.translationX = dip(-5).toFloat()
+            it.translationY = dip(20).toFloat()
+            val scaleX1 = ObjectAnimator.ofFloat(it, "scaleX", 1f, 5f).setDuration(200L)
+            val scaleY1 = ObjectAnimator.ofFloat(it, "scaleY", 1f, 5f).setDuration(200L)
+            val scaleX2 = ObjectAnimator.ofFloat(it, "scaleX", 5f, 6f).setDuration(150L)
+            val scaleY2 = ObjectAnimator.ofFloat(it, "scaleY", 5f, 6f).setDuration(150L)
+            val scaleX3 = ObjectAnimator.ofFloat(it, "scaleX", 6f, 5f).setDuration(150L)
+            val scaleY3 = ObjectAnimator.ofFloat(it, "scaleY", 6f, 5f).setDuration(150L)
+            val rotation1 = ObjectAnimator.ofFloat(it, "rotation", 15f, 5f).apply {
+                startDelay = 400L
+                duration = 150L
+            }
+            val rotation2 = ObjectAnimator.ofFloat(it, "rotation", 5f, 20f).apply {
+                startDelay = 550L
+                duration = 150L
+            }
+            val rotation3 = ObjectAnimator.ofFloat(it, "rotation", 20f, 5f).apply {
+                startDelay = 700L
+                duration = 150L
+            }
+            val rotation4 = ObjectAnimator.ofFloat(it, "rotation", 5f, 15f).apply {
+                startDelay = 850L
+                duration = 150L
+            }
+
+            val animationSet = AnimatorSet().apply {
+                playSequentially(scaleX1, scaleX2, scaleX3)
+                playSequentially(scaleY1, scaleY2, scaleY3)
+                play(rotation1)
+                play(rotation2)
+                play(rotation3)
+                play(rotation4)
+            }
+            animationSet.start()
+        }
+    }
+
+    fun playPointAnim() {
+        popupIconView?.let {
+            val scaleX1 = ObjectAnimator.ofFloat(it, "scaleX", 5f, 1f).setDuration(300L)
+            val scaleY1 = ObjectAnimator.ofFloat(it, "scaleY", 5f, 1f).setDuration(300L)
+            val translationX = ObjectAnimator.ofFloat(it, "translationX", 0f).setDuration(300L)
+            val translationY = ObjectAnimator.ofFloat(it, "translationY", 0f).setDuration(300L)
+
+            val animationSet = AnimatorSet().apply {
+                playTogether(scaleX1, scaleY1, translationX, translationY)
+            }
+            animationSet.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator?) {
+                    popupIconView?.alpha = 1f
+                    popupPointView?.alpha = 0f
+                }
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    popupIconView?.alpha = 0f
+                    popupPointView?.alpha = 1f
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+                    popupIconView?.alpha = 0f
+                    popupPointView?.alpha = 1f
+                }
+
+                override fun onAnimationRepeat(animation: Animator?) {
+
+                }
+
+            })
+            animationSet.start()
+        }
     }
 
     fun stopPopAnim() {

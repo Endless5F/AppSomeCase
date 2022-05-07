@@ -4,22 +4,18 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import com.android.app.R
-import com.android.app.planettab.VibrateUtil.release
-import com.android.app.planettab.VibrateUtil.startVibrate
 import com.android.core.utils.dip
 import com.android.core.utils.getScreenWidth
+import com.android.core.utils.wrapFrameLayoutParam
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -99,14 +95,12 @@ class PlanetTabView : FrameLayout {
 
     /** 当前选中位置(以数据源中index为主) */
     private var currentSelectedIndex = 0
+
     /** 将来选中位置(以数据源中index为主) */
     private var futureSelectedIndex = 0
 
     /** 本地切换动画切换次数 */
     private var currentToggleNum = 1
-
-    /** 是否允许滑动 */
-    private var swipeEnable = true
 
     /** 随手滑动动画方向，是否向右滑动 */
     private var isSwipeRight = false
@@ -124,21 +118,38 @@ class PlanetTabView : FrameLayout {
     private val transitionAnimList = arrayListOf<ValueAnimator>()
 
     private var dataCount = 0
+
     /** 数据源 */
     private var dataArray: List<PlanetItemData>? = null
 
     private var isClickSwitch = true
+
+    /** 是否允许滑动 */
+    private var swipeEnable = false
+
     /** 点击已选中的星球Tab 回调 */
     var clickSelectedCallback: ((PlanetItemData?) -> Unit)? = null
+
     /** 切换Tab 回调 */
     var switchTabCallback: ((PlanetItemData, direction: Int) -> Unit)? = null
 
+    /** 星球item 点击事件回调 */
+    private val planetClickListener: ((PlanetItemData?) -> Unit) = {
+//        switchPlanetFromId(it?.id)
+        switchPlanetFromItemData(it)
+    }
+
     /** 此TabView屏幕中的位置 */
     private val planetTabViewGlobalRect = Rect()
+
     /** 通过计算算出的afx在此TabView中的位置 */
     private val calculateSelectedAfxRect = Rect()
+
     /** 选中星球屏幕中的位置 */
     private val selectedPlanetViewGlobalRect = Rect()
+
+    /** 是否提前播放afx，防止afx闪动 */
+    private val isPrePlay = true
 
     /** item中仅星球的大小和顶部间距 */
     private val planetTopSpace = resources.getDimension(R.dimen.planet_top_space)
@@ -146,7 +157,7 @@ class PlanetTabView : FrameLayout {
     private val planetOriginalHeight = resources.getDimension(R.dimen.planet_height)
 
     /** 滑动后选中星球的AFX特效动画 */
-    private val planetAfxView by lazy {
+    private val planetAfxView by lazy(LazyThreadSafetyMode.NONE) {
         PlanetAfxView(context).apply {
             clickCallback = {
                 clickSelectedCallback?.invoke(dataArray?.getOrNull(currentSelectedIndex))
@@ -157,8 +168,9 @@ class PlanetTabView : FrameLayout {
     /** 最小最大动画时长 */
     private val minAnimDuration = 330L
     private val maxAnimDuration = 660L
+
     /** 动画集 */
-    private val animSet by lazy {
+    private val animSet by lazy(LazyThreadSafetyMode.NONE) {
         AnimatorSet().apply {
             interpolator = DecelerateInterpolator()
             addListener(object : Animator.AnimatorListener {
@@ -179,16 +191,12 @@ class PlanetTabView : FrameLayout {
                 }
 
                 override fun onAnimationEnd(animation: Animator?) {
-                    changeItemIndex()
-                    changeItemsAngle()
+                    changeItemIndexAndAngle()
                     isAnimRunning = false
                     animDirection = ANIM_DIRECTION_NONE
-
                     currentSelectedIndex = futureSelectedIndex
-                    startVibrate(context as Activity)
-                    afxPlay()
 
-                    clipChildren = false
+                    afxPlay()
                     if (childCount > 0) {
                         for (index in 0 until childCount) {
                             when (val child = getChildAt(index)) {
@@ -231,60 +239,11 @@ class PlanetTabView : FrameLayout {
         centerY = originalOvalHeight / 2
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        var viewHeight = this.viewHeight
-        if (childCount > 0) {
-            val startChild = getChildAt(0)
-            val originalPlanetHeight = startChild.measuredHeight
-            val maxScala = calculateSelectScaleRule(270f)
-            val minScala = calculateUnSelectScaleRule(90.0)
-
-            val minPlanetRadius = (originalPlanetHeight * minScala / 2)
-            val maxPlanetRadius = (originalPlanetHeight * maxScala / 2)
-            val diffPlanetTopSpace = planetTopSpace * maxScala / 2
-            centerY = (ovalYRadius + minPlanetRadius + paddingTop).toInt()
-            // View的高度 = 原始椭圆轨道高度 + 顶部最小星球半径 + 底部最大星球半径 - 选中星球文本位移的距离
-            viewHeight = (viewHeight + minPlanetRadius + maxPlanetRadius - diffPlanetTopSpace).toInt()
-        }
-
-        setMeasuredDimension(viewWidth, viewHeight + paddingTop + paddingBottom)
-    }
-
-    private val parentRect = Rect()
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-//        super.onLayout(changed, left, top, right, bottom)
-        parentRect.set(left, top, right, bottom)
-        if (childCount > 0) {
-            for (index in 0 until childCount) {
-                when (getChildAt(index)) {
-                    is PlanetItemView -> layoutItemChildren(index)
-                }
-            }
-        }
-        if (isUseCalculateRect()) {
-            calculateSelectedAfxRect.let {
-                planetAfxView.layout(it.left, it.top, it.right, it.bottom)
-            }
-            planetTabViewGlobalRect.set(0, 0, 0, 0)
-        } else {
-            planetAfxView.layout(
-                selectedPlanetViewGlobalRect.left,
-                selectedPlanetViewGlobalRect.top - planetTabViewGlobalRect.top,
-                selectedPlanetViewGlobalRect.right,
-                selectedPlanetViewGlobalRect.bottom - planetTabViewGlobalRect.top
-            )
-        }
-    }
-
     fun initPlanetListData(data: List<PlanetItemData>) {
-        clipChildren = false
         resetTabViewToInitial()
         dataArray = data
         if (!dataArray.isNullOrEmpty()) {
-            currentSelectedIndex = 0
             dataCount = data.size
-            val middle = dataCount / 2f
             for (i in 0 until dataCount) {
                 val item = data[i]
                 if (item.currentIndex == 0) {
@@ -292,54 +251,69 @@ class PlanetTabView : FrameLayout {
                 }
                 val child = PlanetItemView(context).apply {
                     setPlanetBean(item)
-                    clickListener = {
-                        val currentIndex = it?.currentIndex ?: 0
-                        if (currentIndex == 0) {
-                            val count = if (currentIndex > middle) {
-                                // 左半边星球
-                                isSwipeRight = true
-                                dataCount - currentIndex
-                            } else {
-                                // 右半边星球
-                                isSwipeRight = false
-                                currentIndex
-                            }
-                            isClickSwitch = true
-                            // 点击星球多个切换过渡动画逻辑
-                            executeToggleTransitionAnimation(count)
-                        } else {
-                            clickSelectedCallback?.invoke(it)
-                        }
-                    }
+                    clickListener = planetClickListener
                 }
-                addView(child, LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+                addView(child, wrapFrameLayoutParam)
             }
+            addView(planetAfxView, wrapFrameLayoutParam)
 
-            calculateAngleArray(startAngle, dataCount)
+            calculateAngleArray(dataCount)
             switchTabCallback?.invoke(data[currentSelectedIndex], ANIM_DIRECTION_NONE)
-
-            addView(planetAfxView, LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
+        // init afx
         afxPlay()
+        getCurrentSelectedView()?.visibility = INVISIBLE
+
         requestLayout()
+    }
+
+    /** 选中星球的显示与隐藏 */
+    fun setSelectedPlanetVisibility(visibility: Int) {
+        planetAfxView.visibility = visibility
+        getCurrentSelectedView()?.visibility = INVISIBLE
+    }
+
+    /** 选中星球的位置 */
+    fun getSelectedPlanetLocation(): Rect {
+        val rect = Rect()
+        getCurrentSelectedView()?.getGlobalVisibleRect(rect)
+        return rect
+    }
+
+    /**
+     * 切换星球根据星球ID
+     */
+    fun switchPlanetFromId(id: String? = null) {
+        if (id.isNullOrEmpty()) return
+
+        var itemData: PlanetItemData? = null
+        dataArray?.forEach {
+            if (it.id == id) {
+                itemData = it
+            }
+        }
+        itemData?.let { switchPlanetFromItemData(it) }
     }
 
     /** 重置view到初始 */
     private fun resetTabViewToInitial() {
         animSet.cancel()
         removeAllViews()
+        currentSelectedIndex = 0
         transitionAnimList.clear()
         animDirection = ANIM_DIRECTION_NONE
     }
 
     /** 计算静置状态每个星球静置时的角度 */
-    private fun calculateAngleArray(start: Float, size: Int) {
+    private fun calculateAngleArray(size: Int) {
         // 抽取每个星球静置状态下固定角度集
-        PlanetItemData.calculateAngleArray(start, size) { index, average ->
+        PlanetItemData.calculateAngleArray(startAngle, size) { index, average ->
             getCurrentItemAngle(index, average)
         }
         // 计算完成角度后，对各个星球实例进行角度变量初始化
-        changeItemsAngle()
+        dataArray?.forEach {
+            it.currentAngle = it.currentAngle()
+        }
     }
 
     /** 获取当前星球角度 */
@@ -352,7 +326,84 @@ class PlanetTabView : FrameLayout {
         return if (angle == 90f || angle == 270f) angle else angle + scaleAngle
     }
 
-    private fun layoutItemChildren(index: Int) {
+    /**
+     * 切换星球根据item的数据
+     */
+    private fun switchPlanetFromItemData(it: PlanetItemData?) {
+        val middle = dataCount / 2f
+        val currentIndex = it?.currentIndex ?: 0
+        if (currentIndex != 0) {
+            val count = if (currentIndex > middle) {
+                // 左半边星球
+                isSwipeRight = true
+                dataCount - currentIndex
+            } else {
+                // 右半边星球
+                isSwipeRight = false
+                currentIndex
+            }
+            isClickSwitch = true
+            // 点击星球多个切换过渡动画逻辑
+            executeToggleTransitionAnimation(count)
+        } else {
+            clickSelectedCallback?.invoke(it)
+        }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(viewWidth, getPlanetTabViewHeight(getChildAt(0)))
+    }
+
+    /**
+     * 获取星球Tab高度，受星球item的原始高度影响
+     * 星球item原始高度：R.dimen.planet_container_height
+     */
+    fun getPlanetTabViewHeight(view: View? = null): Int {
+        var viewHeight = this.viewHeight
+        val originalPlanetHeight = view?.measuredHeight?.toFloat()
+            ?: resources.getDimension(R.dimen.planet_container_height)
+        val maxScala = calculateSelectMaxScaleRule()
+        val minScala = calculateUnSelectScaleRule(90.0)
+
+        val minPlanetRadius = (originalPlanetHeight * minScala / 2)
+        val maxPlanetRadius = (originalPlanetHeight * maxScala / 2)
+        val diffPlanetTopSpace = planetTopSpace * maxScala / 2
+        if (view != null) {
+            centerY = (ovalYRadius + minPlanetRadius + paddingTop).toInt()
+        }
+        // View的高度 = 原始椭圆轨道高度 + 顶部最小星球半径 + 底部最大星球半径 - 选中星球文本位移的距离
+        viewHeight = (viewHeight + minPlanetRadius + maxPlanetRadius - diffPlanetTopSpace).toInt()
+
+        return viewHeight + paddingTop + paddingBottom
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (childCount > 0) {
+            for (index in 0 until childCount) {
+                when (getChildAt(index)) {
+                    is PlanetItemView -> layoutPlanetItemChildren(index)
+                }
+            }
+        }
+        if (isUseCalculateRect()) {
+            calculateSelectedAfxRect.let {
+                planetAfxView.layout(it.left, it.top, it.right, it.bottom)
+            }
+            planetTabViewGlobalRect.set(0, 0, 0, 0)
+            selectedPlanetViewGlobalRect.set(0, 0, 0, 0)
+        } else {
+            planetAfxView.layout(
+                selectedPlanetViewGlobalRect.left,
+                selectedPlanetViewGlobalRect.top - planetTabViewGlobalRect.top,
+                selectedPlanetViewGlobalRect.right,
+                selectedPlanetViewGlobalRect.bottom - planetTabViewGlobalRect.top
+            )
+        }
+    }
+
+    private fun layoutPlanetItemChildren(index: Int) {
         val child = getChildAt(index)
         // 度数
         val angle = dataArray?.getOrNull(index)?.currentAngle ?: startAngle
@@ -608,7 +659,7 @@ class PlanetTabView : FrameLayout {
                 toAngle
             }
             item.currentAngle = toAngle
-            layoutItemChildren(item.originalIndex)
+            layoutPlanetItemChildren(item.originalIndex)
         }
     }
 
@@ -653,8 +704,8 @@ class PlanetTabView : FrameLayout {
         animSet.start()
     }
 
-    /** 获取当前星球index */
-    private fun changeItemIndex() {
+    /** 获取当前星球index 和 角度 */
+    private fun changeItemIndexAndAngle() {
         if (animDirection == ANIM_DIRECTION_NONE) return
         dataArray?.forEach {
             when (animDirection) {
@@ -666,12 +717,6 @@ class PlanetTabView : FrameLayout {
                 }
                 else -> {}
             }
-        }
-    }
-
-    /** 改变所有星球的角度 */
-    private fun changeItemsAngle() {
-        dataArray?.forEach {
             it.currentAngle = it.currentAngle()
         }
     }
@@ -687,24 +732,6 @@ class PlanetTabView : FrameLayout {
     private fun afxStop() {
         getCurrentSelectedView()?.visibility = VISIBLE
         planetAfxView.afxStop()
-    }
-
-    /** 选中星球的显示与隐藏 */
-    fun setSelectedPlanetVisibility(visibility: Int) {
-        planetAfxView.visibility = visibility
-        getCurrentSelectedView()?.visibility = INVISIBLE
-    }
-
-    /** 选中星球的位置 */
-    fun getSelectedPlanetLocation(): Rect {
-        return if (selectedPlanetViewGlobalRect.right == 0) {
-            val rect = Rect()
-            (getCurrentSelectedView() as? PlanetItemView)
-                ?.getSelectedIcon()?.getGlobalVisibleRect(rect)
-            rect
-        } else {
-            selectedPlanetViewGlobalRect
-        }
     }
 
     /** 获取选中星球View */
@@ -725,7 +752,7 @@ class PlanetTabView : FrameLayout {
             this.addUpdateListener {
                 val value = it.animatedValue as Float
                 dataArray?.getOrNull(index)?.currentAngle = value
-                layoutItemChildren(index)
+                layoutPlanetItemChildren(index)
             }
         }
     }
@@ -733,10 +760,5 @@ class PlanetTabView : FrameLayout {
     /** 角度转弧度 */
     private fun angleToRadian(angle: Float): Double {
         return angle.toDouble() * PI / 180
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        release()
     }
 }

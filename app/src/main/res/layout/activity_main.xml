@@ -44,41 +44,4 @@
         android:layout_marginTop="50dp"
         android:clipToPadding="false" />
 
-    <FrameLayout
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:clipChildren="false">
-        <FrameLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:clipChildren="false">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="@dimen/planet_width"
-                android:layout_height="@dimen/planet_container_height"
-                android:layout_gravity="center_horizontal"
-                android:clipChildren="false">
-                        <ImageView
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_gravity="center"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            android:src="@drawable/icon_popup"/>
-
-                <com.android.app.LayoutFragment
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-                    <com.android.app.planettab.PlanetItemView
-                        android:id="@+id/pop"
-                        android:layout_width="@dimen/planet_width"
-                        android:layout_height="@dimen/planet_container_height" />
-                </com.android.app.LayoutFragment>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </FrameLayout>
-    </FrameLayout>
-
 </LinearLayout>
