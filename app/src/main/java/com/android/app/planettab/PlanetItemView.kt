@@ -22,6 +22,10 @@ import kotlin.math.abs
  * @since 3.0.0
  */
 class PlanetItemView : FrameLayout {
+    private val minScale = 1f
+    private val maxScale = 6f
+    private val finalScale = 5f
+
     private var nameView: TextView? = null
     private var iconView: ImageView? = null
     private var popupPointView: ImageView? = null
@@ -82,19 +86,35 @@ class PlanetItemView : FrameLayout {
         iconSelectView?.alpha = 1f - alpha
     }
 
-    fun playPopAnim() {
-        popupIconView?.alpha = 1f
-        popupPointView?.alpha = 0f
+    private var initPivotX = 0f
+    private var initPivotY = 0f
 
+    fun playPopAnim() {
         popupIconView?.let {
-            it.translationX = dip(-5).toFloat()
-            it.translationY = dip(20).toFloat()
-            val scaleX1 = ObjectAnimator.ofFloat(it, "scaleX", 1f, 5f).setDuration(200L)
-            val scaleY1 = ObjectAnimator.ofFloat(it, "scaleY", 1f, 5f).setDuration(200L)
-            val scaleX2 = ObjectAnimator.ofFloat(it, "scaleX", 5f, 6f).setDuration(150L)
-            val scaleY2 = ObjectAnimator.ofFloat(it, "scaleY", 5f, 6f).setDuration(150L)
-            val scaleX3 = ObjectAnimator.ofFloat(it, "scaleX", 6f, 5f).setDuration(150L)
-            val scaleY3 = ObjectAnimator.ofFloat(it, "scaleY", 6f, 5f).setDuration(150L)
+            if (initPivotX == 0f) {
+                initPivotX = it.pivotX
+                initPivotY = it.pivotY
+            }
+
+            if (it.height == 0) {
+                it.pivotX = initPivotX
+                it.pivotY = initPivotY
+                it.translationX = dip(-5).toFloat()
+                it.translationY = dip(15).toFloat()
+            } else {
+                it.pivotX = 0f
+                it.pivotY = it.height.toFloat()
+                it.translationX = dip(-5) - it.width * finalScale / 2f
+                it.translationY = dip(5) + it.height * finalScale / 2f
+            }
+            val scaleX1 = ObjectAnimator.ofFloat(it, "scaleX", minScale, finalScale).setDuration(200L)
+            val scaleY1 = ObjectAnimator.ofFloat(it, "scaleY", minScale, finalScale).setDuration(200L)
+            val scaleX2 = ObjectAnimator.ofFloat(it, "scaleX", finalScale, maxScale).setDuration(150L)
+            val scaleY2 = ObjectAnimator.ofFloat(it, "scaleY", finalScale, maxScale).setDuration(150L)
+            val scaleX3 = ObjectAnimator.ofFloat(it, "scaleX", maxScale, finalScale).setDuration(150L)
+            val scaleY3 = ObjectAnimator.ofFloat(it, "scaleY", maxScale, finalScale).setDuration(150L)
+            it.pivotX = 0f
+            it.pivotY = it.measuredHeight.toFloat()
             val rotation1 = ObjectAnimator.ofFloat(it, "rotation", 15f, 5f).apply {
                 startDelay = 400L
                 duration = 150L
@@ -111,28 +131,28 @@ class PlanetItemView : FrameLayout {
                 startDelay = 850L
                 duration = 150L
             }
+            val scaleX4 = ObjectAnimator.ofFloat(it, "scaleX", 5f, 1f).apply {
+                startDelay = 1000L
+                duration = 300L
+            }
+            val scaleY4 = ObjectAnimator.ofFloat(it, "scaleY", 5f, 1f).apply {
+                startDelay = 1000L
+                duration = 300L
+            }
+            val translationX = ObjectAnimator.ofFloat(it, "translationX", 0f).apply {
+                startDelay = 1000L
+                duration = 300L
+            }
+            val translationY = ObjectAnimator.ofFloat(it, "translationY", 0f).apply {
+                startDelay = 1000L
+                duration = 300L
+            }
 
             val animationSet = AnimatorSet().apply {
                 playSequentially(scaleX1, scaleX2, scaleX3)
                 playSequentially(scaleY1, scaleY2, scaleY3)
-                play(rotation1)
-                play(rotation2)
-                play(rotation3)
-                play(rotation4)
-            }
-            animationSet.start()
-        }
-    }
-
-    fun playPointAnim() {
-        popupIconView?.let {
-            val scaleX1 = ObjectAnimator.ofFloat(it, "scaleX", 5f, 1f).setDuration(300L)
-            val scaleY1 = ObjectAnimator.ofFloat(it, "scaleY", 5f, 1f).setDuration(300L)
-            val translationX = ObjectAnimator.ofFloat(it, "translationX", 0f).setDuration(300L)
-            val translationY = ObjectAnimator.ofFloat(it, "translationY", 0f).setDuration(300L)
-
-            val animationSet = AnimatorSet().apply {
-                playTogether(scaleX1, scaleY1, translationX, translationY)
+                playTogether(rotation1, rotation2, rotation3, rotation4)
+                playTogether(scaleX4, scaleY4, translationX, translationY)
             }
             animationSet.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator?) {
@@ -162,6 +182,11 @@ class PlanetItemView : FrameLayout {
     fun stopPopAnim() {
         popupIconView?.alpha = 0f
         popupPointView?.alpha = 1f
+    }
+
+    fun hidePopup() {
+        popupIconView?.alpha = 0f
+        popupPointView?.alpha = 0f
     }
 
     /** 手势处理 */
