@@ -54,7 +54,8 @@
         TraceCompat.beginSection("AppOnCreate");//开始
         // TODO 一系列操作
         TraceCompat.endSection();//结束
-        命令行：python systrace.py -b 32768 -t 5 -a com.android.performanceanalysis -o performance.html
+        命令行：python systrace.py -b 32768 -t 5 -a xxx包名 -o performance.html
+        命令行示例：python systrace.py -b 32768 -t 5 -a com.android.performanceanalysis -o performance.html
         python命令说明： -b：buffer(TraceView收集的大小，默认8MB)  -t：时间  -a：监测的包名  -o：output(导出的文件名)
     参考文档：https://blog.csdn.net/itfootball/article/details/48915935 （Android性能专项测试之Systrace工具）
 
