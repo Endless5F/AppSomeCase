@@ -65,6 +65,7 @@
         举例：锁冲突
     总结：轻量级，开销小。直观反映cpu利用率。
 3. Perfetto：https://zhuanlan.zhihu.com/p/508526020
+   
    Perfetto 是基于 Android 的系统追踪服务， 这个配置在 Android11(R) 之后是默认打开的，但是如果你是 Android 9 (P) 或者 10 (Q) ，那么就需要手动设置一下相应的 prop 属性：adb shell setprop persist.traced.enable 1
    华为P40 Pro：adb shell perfetto -o /data/misc/perfetto-traces/trace_file.perfetto-trace -t 10s sched freq idle am wm gfx view binder_driver hal dalvik camera input res memory
    这个命令先简单的解释下：
