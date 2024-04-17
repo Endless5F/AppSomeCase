@@ -7,8 +7,6 @@ import androidx.core.widget.ContentLoadingProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.core.R
-import kotlinx.android.synthetic.main.fragment_list.*
-import kotlinx.android.synthetic.main.layout_content_loading_view.*
 import com.android.core.widget.EmptyView
 import com.android.core.widget.recycleview.HiRecyclerView
 import com.android.core.widget.item.HiAdapter
@@ -40,17 +38,17 @@ open class HiAbsListFragment : HiBaseFragment(), HiRefresh.HiRefreshListener {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.refreshLayout = refresh_layout
-        this.recyclerView = recycler_view
-        this.emptyView = empty_view
-        this.loadingView = content_loading
+        this.refreshLayout = view.findViewById(R.id.refresh_layout)
+        this.recyclerView = view.findViewById(R.id.recycler_view)
+        this.emptyView = view.findViewById(R.id.empty_view)
+        this.loadingView = view.findViewById(R.id.content_loading)
 
         refreshHeaderView = HiTextOverView(context)
         refreshLayout?.setRefreshOverView(refreshHeaderView)
         refreshLayout?.setRefreshListener(this)
 
         layoutManager = createLayoutManager()
-        hiAdapter = HiAdapter(context!!)
+        hiAdapter = HiAdapter(view.context)
 
         recyclerView?.layoutManager = layoutManager
         recyclerView?.adapter = hiAdapter

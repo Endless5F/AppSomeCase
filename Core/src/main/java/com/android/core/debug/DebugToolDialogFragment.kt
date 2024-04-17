@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.core.R
 import com.android.core.utils.getScreenWidth
-import kotlinx.android.synthetic.main.hi_debug_tool.*
 import java.lang.reflect.Method
 
 class DebugToolDialogFragment : AppCompatDialogFragment() {
@@ -24,10 +23,13 @@ class DebugToolDialogFragment : AppCompatDialogFragment() {
         val parent = dialog?.window?.findViewById(android.R.id.content) ?: container
         val view = inflater.inflate(R.layout.hi_debug_tool, parent, false)
 
-        dialog?.window?.setLayout(
-            (context!!.getScreenWidth() * 0.7f).toInt(),
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
+        context?.let {
+            dialog?.window?.setLayout(
+                (it.getScreenWidth() * 0.7f).toInt(),
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+        }
+
         dialog?.window?.setBackgroundDrawableResource(R.drawable.shape_hi_debug_tool)
         return view
     }
@@ -68,7 +70,7 @@ class DebugToolDialogFragment : AppCompatDialogFragment() {
                 functions.add(func)
             }
         }
-
+        val recycler_view = view.findViewById<RecyclerView>(R.id.recycler_view)
         recycler_view.addItemDecoration(itemDecoration)
         recycler_view.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

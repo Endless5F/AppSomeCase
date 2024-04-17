@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -33,6 +33,9 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+
+    api 'org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version'
+//    api 'org.jetbrains.kotlinx:kotlinx-parcelize:1.1.4'
 
     // 防止项目方法过多，超过65535，编译报错
     api 'androidx.multidex:multidex:2.0.1'

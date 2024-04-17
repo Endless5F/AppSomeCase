@@ -11,13 +11,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
 import com.android.core.R
-import kotlinx.android.synthetic.main.layout_empty_view.view.*
 
 class EmptyView : LinearLayout {
     private var title: TextView
     private var icon: TextView
     private var desc: TextView
     private var button: Button
+    private var emptyTips: TextView
 
     constructor(context: Context) : this(context, null)
 
@@ -39,6 +39,7 @@ class EmptyView : LinearLayout {
         title = findViewById(R.id.empty_title)
         desc = findViewById(R.id.empty_text)
         button = findViewById(R.id.empty_action)
+        emptyTips = findViewById(R.id.empty_tips)
 
 
     }
@@ -63,9 +64,9 @@ class EmptyView : LinearLayout {
 
     @JvmOverloads
     fun setHelpAction(@StringRes actionId: Int = R.string.if_detail, listener: OnClickListener) {
-        empty_tips.setText(actionId)
-        empty_tips.setOnClickListener(listener)
-        empty_tips.visibility = if (actionId == -1) View.GONE else View.VISIBLE
+        emptyTips.setText(actionId)
+        emptyTips.setOnClickListener(listener)
+        emptyTips.visibility = if (actionId == -1) View.GONE else View.VISIBLE
     }
 
 

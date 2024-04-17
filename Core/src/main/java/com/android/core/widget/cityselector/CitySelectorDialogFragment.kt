@@ -1,5 +1,6 @@
 package com.android.core.widget.cityselector
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -19,7 +20,7 @@ import com.android.core.utils.HiDisplayUtil
 import com.android.core.utils.HiRes
 import com.android.core.widget.item.HiViewHolder
 import com.android.core.widget.tab.top.HiTabTopInfo
-import kotlinx.android.synthetic.main.dialog_city_selector.*
+import com.android.core.widget.tab.top.HiTabTopLayout
 import java.lang.IllegalStateException
 
 /**
@@ -76,9 +77,16 @@ class CitySelectorDialogFragment : AppCompatDialogFragment() {
         return contentView
     }
 
+    private var tab_layout: HiTabTopLayout? = null
+    private var close: View? = null
+    private var view_pager: ViewPager? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        close.setOnClickListener { dismiss() }
+        tab_layout = view.findViewById(R.id.tab_layout);
+        close = view.findViewById(R.id.close);
+        view_pager = view.findViewById(R.id.view_pager);
+        close?.setOnClickListener { dismiss() }
 
         this.province = arguments?.getParcelable(KEY_PARAMS_DATA_SELECT) ?: Province()
         this.dataSets = arguments?.getParcelableArrayList(KEY_PARAMS_DATA_SET)
@@ -86,23 +94,23 @@ class CitySelectorDialogFragment : AppCompatDialogFragment() {
 
 
         refreshTabLayoutCount()
-        tab_layout.addTabSelectedChangeListener { index, preInfo, nextInfo ->
+        tab_layout?.addTabSelectedChangeListener { index, preInfo, nextInfo ->
             //tablayout 选中的第2个，viewpager 可能还处于第一个1.则同步viewpager的页选中项
-            if (view_pager.currentItem != index) {
-                view_pager.setCurrentItem(index, false)
+            if (view_pager?.currentItem != index) {
+                view_pager?.setCurrentItem(index, false)
             }
         }
-        view_pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        view_pager?.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 if (position != topTabSelectIndex) {
                     //去通知 toptablayout 进行标签的切换
-                    tab_layout.defaultSelected(topTabs[position])
+                    tab_layout?.defaultSelected(topTabs[position])
                     topTabSelectIndex = position
                 }
             }
         })
 
-        view_pager.adapter = CityPagerAdapter { tabIndex, selectDistrict ->
+        view_pager?.adapter = CityPagerAdapter { tabIndex, selectDistrict ->
             //tabIndex 代表就是哪一个列表 发生了点击事件
             //selectDistrict 是代表该页面选中的数据对象(省市区)
             when (selectDistrict.type) {
@@ -154,7 +162,7 @@ class CitySelectorDialogFragment : AppCompatDialogFragment() {
                 else -> throw IllegalStateException("pageCount must be less than ${views.size()}")
             }
             view.setData(select, list) { selectDistrict ->
-                if (view_pager.currentItem != position) return@setData
+                if (view_pager?.currentItem != position) return@setData
                 itemClickCallback(position, selectDistrict)
             }
             if (view.parent == null) container.addView(view)
@@ -219,7 +227,7 @@ class CitySelectorDialogFragment : AppCompatDialogFragment() {
                     return districtList.size
                 }
 
-                override fun onBindViewHolder(holder: HiViewHolder, position: Int) {
+                override fun onBindViewHolder(holder: HiViewHolder, @SuppressLint("RecyclerView") position: Int) {
                     val checkedTextView = holder.findViewById<CheckedTextView>(R.id.title)
                     val district = districtList[position]
                     checkedTextView?.text = district.districtName
@@ -281,16 +289,16 @@ class CitySelectorDialogFragment : AppCompatDialogFragment() {
             topTabs.add(newTabTopInfo(pleasePickStr))
         }
 
-        view_pager.adapter?.notifyDataSetChanged()
+        view_pager?.adapter?.notifyDataSetChanged()
 
         //notifyDataSetChanged它是异步
         // inflateInfo，defaultSelected是同步，就会触发addTabSelectedChangeListener，进而触发viewpager.setCurrenItem
         // 如果viewpager 还没刷新完成， 还没有从1页变成2页，此时肯定会报错
-        tab_layout.post {
-            tab_layout.inflateInfo(topTabs as List<HiTabTopInfo<*>>)
+        tab_layout?.post {
+            tab_layout?.inflateInfo(topTabs as List<HiTabTopInfo<*>>)
             //场景是 addPleasePickTab =true ,省市区还没选择完，此时需要选择最后一个tab
             // addPleasePickTab=false.,省市区都已经选择完了，就发生在第二次进入
-            tab_layout.defaultSelected(topTabs[if (addPleasePickTab) topTabs.size - 1 else 0])
+            tab_layout?.defaultSelected(topTabs[if (addPleasePickTab) topTabs.size - 1 else 0])
         }
     }
 
